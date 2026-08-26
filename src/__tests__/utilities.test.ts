@@ -53,7 +53,11 @@ describe('isoToFrDate', () => {
     expect(isoToFrDate('not-a-date')).toBe('')
   })
 
-  it('formats an ISO date as DD/MM/YYYY', () => {
+  it('formats a timezone-naive ISO date as DD/MM/YYYY', () => {
+    expect(isoToFrDate('2024-03-05T00:00:00')).toBe('05/03/2024')
+  })
+
+  it('formats a UTC-suffixed ISO date as DD/MM/YYYY', () => {
     expect(isoToFrDate('2024-03-05T00:00:00.000Z')).toBe('05/03/2024')
   })
 })
