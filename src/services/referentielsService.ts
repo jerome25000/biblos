@@ -40,3 +40,25 @@ export async function fetchTypesLivre(): Promise<TypeLivre[]> {
   if (error) throw error
   return (data ?? []) as TypeLivre[]
 }
+
+export async function fetchAuteurById(id: number): Promise<Auteur | null> {
+  const { data, error } = await supabase
+    .from('livres_auteur')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (error && error.code !== 'PGRST116') throw error
+  return (data ?? null) as Auteur | null
+}
+
+export async function fetchEditeurById(id: number): Promise<Editeur | null> {
+  const { data, error } = await supabase
+    .from('livres_editeur')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (error && error.code !== 'PGRST116') throw error
+  return (data ?? null) as Editeur | null
+}

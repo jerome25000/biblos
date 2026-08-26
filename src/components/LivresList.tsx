@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { fetchLivres, PAGE_SIZE } from '../services/livresService'
-import type { Livre } from '../types/database'
+import type { Livre, Auteur, Editeur } from '../types/database'
+import type { LivresFilter } from '../services/livresService'
 import { t } from '../services/i18nService'
 import { formatDate } from '../services/utilities'
 import { Pagination } from './Pagination'
 import { LivreFormModal } from './LivreFormModal'
+import { LivreSearchModal } from './LivreSearchModal'
+import { fetchAuteurById, fetchEditeurById } from '../services/referentielsService'
 
 export function LivresList() {
   const [page, setPage] = useState(1)
@@ -14,13 +17,16 @@ export function LivresList() {
   const [error, setError] = useState(false)
   const [editingLivre, setEditingLivre] = useState<Livre | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<LivresFilter | null>(null)
+  const [filterItemData, setFilterItemData] = useState<Auteur | Editeur | null>(null)
 
   const loadLivres = useCallback(() => {
     let cancelled = false
     setLoading(true)
     setError(false)
 
-    fetchLivres(page)
+    fetchLivres(page, activeFilter ?? undefined)
       .then((result) => {
         if (cancelled) return
         setLivres(result.livres)
@@ -36,9 +42,26 @@ export function LivresList() {
     return () => {
       cancelled = true
     }
-  }, [page])
+  }, [page, activeFilter])
 
   useEffect(() => loadLivres(), [loadLivres])
+
+  useEffect(() => {
+    if (!activeFilter) {
+      setFilterItemData(null)
+      return
+    }
+
+    if (activeFilter.type === 'auteur') {
+      fetchAuteurById(activeFilter.auteurId)
+        .then(setFilterItemData)
+        .catch(() => setFilterItemData(null))
+    } else if (activeFilter.type === 'editeur') {
+      fetchEditeurById(activeFilter.editeurId)
+        .then(setFilterItemData)
+        .catch(() => setFilterItemData(null))
+    }
+  }, [activeFilter])
 
   function openCreateModal() {
     setEditingLivre(null)
@@ -54,26 +77,77 @@ export function LivresList() {
     setModalOpen(false)
   }
 
+  function handleSearchApply(filter: LivresFilter) {
+    setActiveFilter(filter)
+    setPage(1)
+  }
+
+  function clearFilter() {
+    setActiveFilter(null)
+    setPage(1)
+  }
+
+  function getFilterLabel(): string {
+    if (!activeFilter) return ''
+    if (activeFilter.type === 'titre') return activeFilter.titre
+    if (activeFilter.type === 'auteur' && filterItemData && 'prenom' in filterItemData) {
+      return `${filterItemData.nom} ${filterItemData.prenom}`
+    }
+    if (activeFilter.type === 'editeur' && filterItemData && 'adresse' in filterItemData) {
+      return filterItemData.nom
+    }
+    return ''
+  }
+
   return (
     <section className="books-workspace">
       <div className="books-workspace-header">
-        <h1>{t('livres.title')}</h1>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={openCreateModal}
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-            <path
-              d="M12 5v14M5 12h14"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </svg>
-          {t('livres.add')}
-        </button>
+        <div className="books-workspace-title">
+          <h1>{t('livres.title')}</h1>
+          {activeFilter && (
+            <div className="active-filter">
+              <span>{t('livres.search.activeFilter', { value: getFilterLabel() })}</span>
+              <button
+                type="button"
+                className="btn-secondary btn-small"
+                onClick={clearFilter}
+              >
+                {t('livres.search.clearFilter')}
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="books-workspace-actions">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => setSearchModalOpen(true)}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path
+                d="M11 19c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8m8.5-17c-.5 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1m-1 8c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.2 5 5"
+                fill="currentColor"
+              />
+            </svg>
+            {t('livres.search.button')}
+          </button>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={openCreateModal}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path
+                d="M12 5v14M5 12h14"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+            {t('livres.add')}
+          </button>
+        </div>
       </div>
       {loading && (
         <div className="books-empty">
@@ -152,6 +226,11 @@ export function LivresList() {
         onClose={closeModal}
         onSaved={loadLivres}
         livre={editingLivre}
+      />
+      <LivreSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+        onApply={handleSearchApply}
       />
     </section>
   )

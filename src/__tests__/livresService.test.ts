@@ -1,17 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
-const rangeMock = vi.fn()
-const notMock = vi.fn(() => ({ range: rangeMock }))
-const orderMock = vi.fn(() => ({ not: notMock }))
-const selectMock = vi.fn(() => ({ order: orderMock }))
-const insertMock = vi.fn()
-const eqMock = vi.fn()
-const updateMock = vi.fn(() => ({ eq: eqMock }))
-const fromMock = vi.fn((_table: string) => ({
-  select: selectMock,
-  insert: insertMock,
-  update: updateMock,
-}))
+const fromMock = vi.fn()
 
 vi.mock('../supabaseClient', () => ({
   supabase: { from: fromMock },
@@ -22,20 +11,32 @@ const { fetchLivres, createLivre, updateLivre, PAGE_SIZE } = await import(
 )
 
 describe('fetchLivres', () => {
+  let rangeMock: ReturnType<typeof vi.fn>
+  let selectMock: ReturnType<typeof vi.fn>
+  let orderMock: ReturnType<typeof vi.fn>
+  let notMock: ReturnType<typeof vi.fn>
+  let eqMock: ReturnType<typeof vi.fn>
+  let ilikeMock: ReturnType<typeof vi.fn>
+
   beforeEach(() => {
-    fromMock.mockClear()
-    selectMock.mockClear()
-    orderMock.mockClear()
-    notMock.mockClear()
-    rangeMock.mockReset()
-    insertMock.mockReset()
-    updateMock.mockClear()
-    eqMock.mockReset()
+    rangeMock = vi.fn().mockResolvedValue({ data: [], count: 0, error: null })
+    eqMock = vi.fn().mockReturnThis()
+    ilikeMock = vi.fn().mockReturnThis()
+    notMock = vi.fn().mockReturnThis()
+    orderMock = vi.fn().mockReturnThis()
+    selectMock = vi.fn(function () {
+      return {
+        order: orderMock,
+        not: notMock,
+        eq: eqMock,
+        ilike: ilikeMock,
+        range: rangeMock,
+      }
+    })
+    fromMock.mockReturnValue({ select: selectMock })
   })
 
   it('queries livres_livres ordered by dateDebutLecture desc, excluding unread books, with the right range', async () => {
-    rangeMock.mockResolvedValue({ data: [], count: 0, error: null })
-
     await fetchLivres(2)
 
     expect(fromMock).toHaveBeenCalledWith('livres_livres')
@@ -65,16 +66,44 @@ describe('fetchLivres', () => {
 
     await expect(fetchLivres(1)).rejects.toThrow('boom')
   })
+
+  describe('with titre filter', () => {
+    it('applies ilike filter on titre and does not apply the dateDebutLecture constraint', async () => {
+      await fetchLivres(1, { type: 'titre', titre: 'Dune' })
+
+      expect(ilikeMock).toHaveBeenCalledWith('titre', 'Dune')
+      expect(notMock).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('with auteur filter', () => {
+    it('applies eq filter on auteur_id and does not apply the dateDebutLecture constraint', async () => {
+      await fetchLivres(1, { type: 'auteur', auteurId: 42 })
+
+      expect(eqMock).toHaveBeenCalledWith('auteur_id', 42)
+      expect(notMock).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('with editeur filter', () => {
+    it('applies eq filter on numEditeur_id and does not apply the dateDebutLecture constraint', async () => {
+      await fetchLivres(1, { type: 'editeur', editeurId: 99 })
+
+      expect(eqMock).toHaveBeenCalledWith('numEditeur_id', 99)
+      expect(notMock).not.toHaveBeenCalled()
+    })
+  })
 })
 
 describe('createLivre', () => {
+  let insertMock: ReturnType<typeof vi.fn>
+
   beforeEach(() => {
-    fromMock.mockClear()
-    insertMock.mockReset()
+    insertMock = vi.fn().mockResolvedValue({ error: null })
+    fromMock.mockReturnValue({ insert: insertMock })
   })
 
   it('inserts the payload into livres_livres', async () => {
-    insertMock.mockResolvedValue({ error: null })
     const payload = { titre: 'Dune' } as never
 
     await createLivre(payload)
@@ -93,14 +122,16 @@ describe('createLivre', () => {
 })
 
 describe('updateLivre', () => {
+  let updateMock: ReturnType<typeof vi.fn>
+  let eqMock: ReturnType<typeof vi.fn>
+
   beforeEach(() => {
-    fromMock.mockClear()
-    updateMock.mockClear()
-    eqMock.mockReset()
+    eqMock = vi.fn().mockResolvedValue({ error: null })
+    updateMock = vi.fn().mockReturnValue({ eq: eqMock })
+    fromMock.mockReturnValue({ update: updateMock })
   })
 
   it('updates the livre matching the id', async () => {
-    eqMock.mockResolvedValue({ error: null })
     const payload = { titre: 'Dune' } as never
 
     await updateLivre(42, payload)
