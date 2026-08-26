@@ -7,7 +7,7 @@ import { formatDate } from '../services/utilities'
 import { Pagination } from './Pagination'
 import { LivreFormModal } from './LivreFormModal'
 import { LivreSearchModal } from './LivreSearchModal'
-import { fetchAuteurById, fetchEditeurById } from '../services/referentielsService'
+import { fetchAuteurById, fetchEditeurById, fetchAuteurs, fetchEditeurs } from '../services/referentielsService'
 
 export function LivresList() {
   const [page, setPage] = useState(1)
@@ -20,6 +20,8 @@ export function LivresList() {
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const [activeFilter, setActiveFilter] = useState<LivresFilter | null>(null)
   const [filterItemData, setFilterItemData] = useState<Auteur | Editeur | null>(null)
+  const [auteurs, setAuteurs] = useState<Map<number, Auteur>>(new Map())
+  const [editeurs, setEditeurs] = useState<Map<number, Editeur>>(new Map())
 
   const loadLivres = useCallback(() => {
     let cancelled = false
@@ -45,6 +47,18 @@ export function LivresList() {
   }, [page, activeFilter])
 
   useEffect(() => loadLivres(), [loadLivres])
+
+  useEffect(() => {
+    Promise.all([fetchAuteurs(), fetchEditeurs()])
+      .then(([auteursData, editorsData]) => {
+        setAuteurs(new Map(auteursData.map((a) => [a.id, a])))
+        setEditeurs(new Map(editorsData.map((e) => [e.id, e])))
+      })
+      .catch(() => {
+        setAuteurs(new Map())
+        setEditeurs(new Map())
+      })
+  }, [])
 
   useEffect(() => {
     if (!activeFilter) {
@@ -170,47 +184,51 @@ export function LivresList() {
               <tr>
                 <th aria-hidden="true"></th>
                 <th>{t('livres.column.titre')}</th>
-                <th>{t('livres.column.titreVo')}</th>
-                <th>{t('livres.column.serie')}</th>
+                <th>{t('livres.column.auteur')}</th>
+                <th>{t('livres.column.editeur')}</th>
                 <th>{t('livres.column.dateDebutLecture')}</th>
                 <th>{t('livres.column.dateFinLecture')}</th>
                 <th>{t('livres.column.note')}</th>
               </tr>
             </thead>
             <tbody>
-              {livres.map((livre) => (
-                <tr key={livre.id}>
-                  <td>
-                    <button
-                      type="button"
-                      className="icon-btn"
-                      aria-label={t('livres.edit')}
-                      onClick={() => openEditModal(livre)}
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        width="16"
-                        height="16"
-                        aria-hidden="true"
+              {livres.map((livre) => {
+                const auteur = livre.auteur_id ? auteurs.get(livre.auteur_id) : null
+                const editeur = editeurs.get(livre.numEditeur_id)
+                return (
+                  <tr key={livre.id}>
+                    <td>
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        aria-label={t('livres.edit')}
+                        onClick={() => openEditModal(livre)}
                       >
-                        <path
-                          d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                          strokeLinejoin="round"
-                          fill="none"
-                        />
-                      </svg>
-                    </button>
-                  </td>
-                  <td>{livre.titre}</td>
-                  <td>{livre.titreVo}</td>
-                  <td>{livre.serie}</td>
-                  <td>{formatDate(livre.dateDebutLecture)}</td>
-                  <td>{formatDate(livre.dateFinLecture)}</td>
-                  <td>{livre.note ?? ''}</td>
-                </tr>
-              ))}
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                            strokeLinejoin="round"
+                            fill="none"
+                          />
+                        </svg>
+                      </button>
+                    </td>
+                    <td>{livre.titre}</td>
+                    <td>{auteur ? `${auteur.prenom} ${auteur.nom}` : ''}</td>
+                    <td>{editeur?.nom ?? ''}</td>
+                    <td>{formatDate(livre.dateDebutLecture)}</td>
+                    <td>{formatDate(livre.dateFinLecture)}</td>
+                    <td>{livre.note ?? ''}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
           <Pagination
