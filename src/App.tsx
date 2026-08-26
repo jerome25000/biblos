@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { getSession, onAuthStateChange, signOut } from './services/authService'
 import { t } from './services/i18nService'
+import { exportDatabaseAsSQL, downloadSQL } from './services/exportSqlService'
 import { Login } from './components/Login'
 import { LivresList } from './components/LivresList'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -24,6 +26,20 @@ function App() {
       unsubscribe()
     }
   }, [])
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true)
+      const sqlContent = await exportDatabaseAsSQL()
+      const timestamp = new Date().toISOString().split('T')[0]
+      downloadSQL(sqlContent, `biblos_export_${timestamp}.sql`)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Erreur lors de l\'export')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (checkingSession) {
     return (
@@ -49,6 +65,14 @@ function App() {
           {session.user.email && (
             <span className="user-email">{session.user.email}</span>
           )}
+          <button
+            type="button"
+            className="export-btn"
+            onClick={handleExport}
+            disabled={isExporting}
+          >
+            {isExporting ? t('app.exporting') : t('app.export')}
+          </button>
           <button type="button" className="logout-btn" onClick={() => signOut()}>
             {t('app.logout')}
           </button>
