@@ -7,6 +7,7 @@ import { formatDate } from '../services/utilities'
 import { Pagination } from './Pagination'
 import { LivreFormModal } from './LivreFormModal'
 import { LivreSearchModal } from './LivreSearchModal'
+import { StarRating } from './StarRating'
 import { fetchAuteurById, fetchEditeurById, fetchAuteurs, fetchEditeurs } from '../services/referentielsService'
 
 export function LivresList() {
@@ -225,7 +226,9 @@ export function LivresList() {
                     <td>{editeur?.nom ?? ''}</td>
                     <td>{formatDate(livre.dateDebutLecture)}</td>
                     <td>{formatDate(livre.dateFinLecture)}</td>
-                    <td>{livre.note ?? ''}</td>
+                    <td>
+                      <StarRating value={livre.note ?? null} onChange={() => {}} disabled />
+                    </td>
                   </tr>
                 )
               })}
