@@ -9,6 +9,9 @@ import { LivreFormModal } from './LivreFormModal'
 import { LivreSearchModal } from './LivreSearchModal'
 import { StarRating } from './StarRating'
 import { fetchAuteurById, fetchEditeurById, fetchAuteurs, fetchEditeurs } from '../services/referentielsService'
+import IconSearch from '../assets/icons/search.svg?react'
+import IconPlus from '../assets/icons/plus.svg?react'
+import IconEdit from '../assets/icons/edit.svg?react'
 
 export function LivresList() {
   const [page, setPage] = useState(1)
@@ -138,12 +141,7 @@ export function LivresList() {
             className="btn-secondary"
             onClick={() => setSearchModalOpen(true)}
           >
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-              <path
-                d="M11 19c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8m8.5-17c-.5 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1m-1 8c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5 5 2.2 5 5"
-                fill="currentColor"
-              />
-            </svg>
+            <IconSearch width={16} height={16} aria-hidden="true" />
             {t('livres.search.button')}
           </button>
           <button
@@ -151,15 +149,7 @@ export function LivresList() {
             className="btn-primary"
             onClick={openCreateModal}
           >
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-              <path
-                d="M12 5v14M5 12h14"
-                stroke="currentColor"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
+            <IconPlus width={16} height={16} aria-hidden="true" />
             {t('livres.add')}
           </button>
         </div>
@@ -205,20 +195,7 @@ export function LivresList() {
                         aria-label={t('livres.edit')}
                         onClick={() => openEditModal(livre)}
                       >
-                        <svg
-                          viewBox="0 0 24 24"
-                          width="16"
-                          height="16"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinejoin="round"
-                            fill="none"
-                          />
-                        </svg>
+                        <IconEdit width={16} height={16} aria-hidden="true" />
                       </button>
                     </td>
                     <td>{livre.titre}</td>

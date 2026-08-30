@@ -29,6 +29,7 @@ export function StarRating({ value, onChange, disabled }: StarRatingProps) {
       {Array.from({ length: STAR_COUNT }, (_, index) => index + 1).map(
         (starIndex) => (
           <span key={starIndex} className="star-rating-star">
+            {/* Inline SVG: dynamic gradient id/offset per render depends on useId() and starFillPercent(). Cannot be static .svg file. */}
             <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
               <defs>
                 <linearGradient id={`star-fill-${id}-${starIndex}`}>
