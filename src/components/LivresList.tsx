@@ -12,6 +12,14 @@ import { fetchAuteurById, fetchEditeurById, fetchAuteurs, fetchEditeurs } from '
 import IconSearch from '../assets/icons/search.svg?react'
 import IconPlus from '../assets/icons/plus.svg?react'
 import IconEdit from '../assets/icons/edit.svg?react'
+import IconGrid from '../assets/icons/grid.svg?react'
+import IconList from '../assets/icons/list.svg?react'
+import { BookCard } from './BookCard'
+
+const VIEW_MODE_TABLE = 'table'
+const VIEW_MODE_CARDS = 'cards'
+
+type ViewMode = typeof VIEW_MODE_TABLE | typeof VIEW_MODE_CARDS
 
 export function LivresList() {
   const [page, setPage] = useState(1)
@@ -26,6 +34,7 @@ export function LivresList() {
   const [filterItemData, setFilterItemData] = useState<Auteur | Editeur | null>(null)
   const [auteurs, setAuteurs] = useState<Map<number, Auteur>>(new Map())
   const [editeurs, setEditeurs] = useState<Map<number, Editeur>>(new Map())
+  const [viewMode, setViewMode] = useState<ViewMode>(VIEW_MODE_TABLE)
 
   const loadLivres = useCallback(() => {
     let cancelled = false
@@ -152,6 +161,29 @@ export function LivresList() {
             <IconPlus width={16} height={16} aria-hidden="true" />
             {t('livres.add')}
           </button>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label={
+              viewMode === VIEW_MODE_TABLE
+                ? t('livres.view.showCards')
+                : t('livres.view.showTable')
+            }
+            title={
+              viewMode === VIEW_MODE_TABLE
+                ? t('livres.view.showCards')
+                : t('livres.view.showTable')
+            }
+            onClick={() =>
+              setViewMode(viewMode === VIEW_MODE_TABLE ? VIEW_MODE_CARDS : VIEW_MODE_TABLE)
+            }
+          >
+            {viewMode === VIEW_MODE_TABLE ? (
+              <IconGrid width={16} height={16} aria-hidden="true" />
+            ) : (
+              <IconList width={16} height={16} aria-hidden="true" />
+            )}
+          </button>
         </div>
       </div>
       {loading && (
@@ -170,47 +202,56 @@ export function LivresList() {
       )}
       {!loading && !error && livres.length > 0 && (
         <>
-          <table>
-            <thead>
-              <tr>
-                <th aria-hidden="true"></th>
-                <th>{t('livres.column.titre')}</th>
-                <th>{t('livres.column.auteur')}</th>
-                <th>{t('livres.column.editeur')}</th>
-                <th>{t('livres.column.dateDebutLecture')}</th>
-                <th>{t('livres.column.dateFinLecture')}</th>
-                <th>{t('livres.column.note')}</th>
-              </tr>
-            </thead>
-            <tbody>
+          {viewMode === VIEW_MODE_TABLE ? (
+            <table>
+              <thead>
+                <tr>
+                  <th aria-hidden="true"></th>
+                  <th>{t('livres.column.titre')}</th>
+                  <th>{t('livres.column.auteur')}</th>
+                  <th>{t('livres.column.editeur')}</th>
+                  <th>{t('livres.column.dateDebutLecture')}</th>
+                  <th>{t('livres.column.dateFinLecture')}</th>
+                  <th>{t('livres.column.note')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {livres.map((livre) => {
+                  const auteur = livre.auteur_id ? auteurs.get(livre.auteur_id) : null
+                  const editeur = editeurs.get(livre.numEditeur_id)
+                  return (
+                    <tr key={livre.id}>
+                      <td>
+                        <button
+                          type="button"
+                          className="icon-btn"
+                          aria-label={t('livres.edit')}
+                          onClick={() => openEditModal(livre)}
+                        >
+                          <IconEdit width={16} height={16} aria-hidden="true" />
+                        </button>
+                      </td>
+                      <td>{livre.titre}</td>
+                      <td>{auteur ? `${auteur.prenom} ${auteur.nom}` : ''}</td>
+                      <td>{editeur?.nom ?? ''}</td>
+                      <td>{formatDate(livre.dateDebutLecture)}</td>
+                      <td>{formatDate(livre.dateFinLecture)}</td>
+                      <td>
+                        <StarRating value={livre.note ?? null} onChange={() => {}} disabled />
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div className="books-grid">
               {livres.map((livre) => {
-                const auteur = livre.auteur_id ? auteurs.get(livre.auteur_id) : null
-                const editeur = editeurs.get(livre.numEditeur_id)
-                return (
-                  <tr key={livre.id}>
-                    <td>
-                      <button
-                        type="button"
-                        className="icon-btn"
-                        aria-label={t('livres.edit')}
-                        onClick={() => openEditModal(livre)}
-                      >
-                        <IconEdit width={16} height={16} aria-hidden="true" />
-                      </button>
-                    </td>
-                    <td>{livre.titre}</td>
-                    <td>{auteur ? `${auteur.prenom} ${auteur.nom}` : ''}</td>
-                    <td>{editeur?.nom ?? ''}</td>
-                    <td>{formatDate(livre.dateDebutLecture)}</td>
-                    <td>{formatDate(livre.dateFinLecture)}</td>
-                    <td>
-                      <StarRating value={livre.note ?? null} onChange={() => {}} disabled />
-                    </td>
-                  </tr>
-                )
+                const auteur = livre.auteur_id ? auteurs.get(livre.auteur_id) ?? null : null
+                return <BookCard key={livre.id} livre={livre} auteur={auteur} />
               })}
-            </tbody>
-          </table>
+            </div>
+          )}
           <Pagination
             page={page}
             count={count}

@@ -105,4 +105,26 @@ describe('LivresList', () => {
     expect(screen.getByText('Modifier le livre')).toBeInTheDocument()
     expect(screen.getByLabelText('Titre')).toHaveValue('Dune')
   })
+
+  it('toggles between table and card view when clicking the view toggle button', async () => {
+    fetchLivresMock.mockResolvedValue({
+      livres: [makeLivre({ titre: 'Test Book' })],
+      count: 1,
+    })
+
+    render(<LivresList />)
+    await screen.findByText('Test Book')
+
+    expect(screen.getByRole('table')).toBeInTheDocument()
+
+    const toggleButton = screen.getByLabelText('Afficher les cartes')
+    fireEvent.click(toggleButton)
+
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    expect(document.querySelector('.books-grid')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByLabelText('Afficher le tableau'))
+    expect(screen.getByRole('table')).toBeInTheDocument()
+    expect(document.querySelector('.books-grid')).not.toBeInTheDocument()
+  })
 })
