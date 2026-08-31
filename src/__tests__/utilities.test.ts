@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  calculateTooltipPosition,
   emptyToNull,
   formatDate,
   frDateToIso,
@@ -112,6 +113,40 @@ describe('emptyToNull', () => {
 
   it('returns the trimmed value otherwise', () => {
     expect(emptyToNull('  hello  ')).toBe('hello')
+  })
+})
+
+describe('calculateTooltipPosition', () => {
+  const anchor = { top: 300, left: 400, width: 100, height: 20 }
+
+  it('places the bubble above the anchor using viewport-relative coordinates only', () => {
+    // Regression: position: fixed uses viewport coordinates, so scroll offsets
+    // must never be added here (that was the bug that sent the tooltip off-screen).
+    const result = calculateTooltipPosition(anchor, 200, 50, 1200, 800)
+    expect(result.top).toBe(anchor.top - 50 - 10)
+  })
+
+  it('centers the bubble horizontally on the anchor', () => {
+    const result = calculateTooltipPosition(anchor, 200, 50, 1200, 800)
+    expect(result.left).toBe(anchor.left + anchor.width / 2 - 200 / 2)
+  })
+
+  it('clamps left position when the bubble would overflow the left edge', () => {
+    const nearLeftAnchor = { top: 300, left: 5, width: 20, height: 20 }
+    const result = calculateTooltipPosition(nearLeftAnchor, 200, 50, 1200, 800)
+    expect(result.left).toBe(10)
+  })
+
+  it('clamps left position when the bubble would overflow the right edge', () => {
+    const nearRightAnchor = { top: 300, left: 1180, width: 20, height: 20 }
+    const result = calculateTooltipPosition(nearRightAnchor, 200, 50, 1200, 800)
+    expect(result.left).toBe(1200 - 200 - 10)
+  })
+
+  it('flips the bubble below the anchor when there is no room above', () => {
+    const nearTopAnchor = { top: 5, left: 400, width: 100, height: 20 }
+    const result = calculateTooltipPosition(nearTopAnchor, 200, 50, 1200, 800)
+    expect(result.top).toBe(nearTopAnchor.top + nearTopAnchor.height + 10)
   })
 })
 

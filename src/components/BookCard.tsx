@@ -20,7 +20,7 @@ export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
         type="button"
         className="book-card-image-wrapper"
         onClick={() => onEdit?.(livre)}
-        title={onEdit ? 'Click to edit' : undefined}
+        title={onEdit ? t('livres.card.editClick') : undefined}
       >
         {imageUrl ? (
           <img
@@ -39,10 +39,10 @@ export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
         <div className="book-card-title-row">
           <h3 className="book-card-title">{livre.titre}</h3>
           {livre.serie && (
-            <Tooltip text={`${livre.serie}${livre.num_serie ? ` #${livre.num_serie}` : ''}`}>
+            <Tooltip text={`${livre.serie}${livre.num_serie ? ` - ${livre.num_serie}` : ''}`}>
               <span className="book-card-serie">
                 {livre.serie}
-                {livre.num_serie && ` #${livre.num_serie}`}
+                {livre.num_serie && ` - ${livre.num_serie}`}
               </span>
             </Tooltip>
           )}

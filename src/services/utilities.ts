@@ -60,6 +60,45 @@ export function totalPages(count: number, pageSize: number): number {
   return Math.max(1, Math.ceil(count / pageSize))
 }
 
+export interface TooltipAnchorRect {
+  top: number
+  left: number
+  width: number
+  height: number
+}
+
+export interface TooltipPosition {
+  top: number
+  left: number
+}
+
+export function calculateTooltipPosition(
+  anchorRect: TooltipAnchorRect,
+  bubbleWidth: number,
+  bubbleHeight: number,
+  viewportWidth: number,
+  viewportHeight: number,
+  gap = 10,
+  padding = 10,
+): TooltipPosition {
+  let left = anchorRect.left + anchorRect.width / 2 - bubbleWidth / 2
+  if (left < padding) {
+    left = padding
+  } else if (left + bubbleWidth > viewportWidth - padding) {
+    left = viewportWidth - bubbleWidth - padding
+  }
+
+  let top = anchorRect.top - bubbleHeight - gap
+  if (top < padding) {
+    top = Math.min(
+      anchorRect.top + anchorRect.height + gap,
+      viewportHeight - bubbleHeight - padding,
+    )
+  }
+
+  return { top, left }
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 bytes'
   const k = 1024

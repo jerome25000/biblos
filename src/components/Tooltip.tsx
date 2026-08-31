@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { calculateTooltipPosition } from '../services/utilities'
 
 interface TooltipProps {
   text: string | null
@@ -12,27 +13,34 @@ export function Tooltip({ text, children }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 0 })
 
+  const updatePosition = useCallback(() => {
+    if (!wrapperRef.current || !bubbleRef.current) return
+    const rect = wrapperRef.current.getBoundingClientRect()
+    const bubbleWidth = bubbleRef.current.offsetWidth || 400
+    const bubbleHeight = bubbleRef.current.offsetHeight || 100
+
+    setPosition(
+      calculateTooltipPosition(
+        rect,
+        bubbleWidth,
+        bubbleHeight,
+        window.innerWidth,
+        window.innerHeight,
+      ),
+    )
+  }, [])
+
   useEffect(() => {
-    if (isVisible && wrapperRef.current && bubbleRef.current) {
-      const rect = wrapperRef.current.getBoundingClientRect()
-      const bubbleWidth = bubbleRef.current.offsetWidth || 400
-      const bubbleHeight = bubbleRef.current.offsetHeight || 100
+    if (!isVisible) return
 
-      let left = rect.left + rect.width / 2 - bubbleWidth / 2
-
-      const padding = 10
-      if (left < padding) {
-        left = padding
-      } else if (left + bubbleWidth > window.innerWidth - padding) {
-        left = window.innerWidth - bubbleWidth - padding
-      }
-
-      setPosition({
-        top: rect.top - bubbleHeight - 10,
-        left,
-      })
+    updatePosition()
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true)
+      window.removeEventListener('resize', updatePosition)
     }
-  }, [isVisible])
+  }, [isVisible, updatePosition])
 
   const handleMouseEnter = () => {
     setIsVisible(true)

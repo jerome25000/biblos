@@ -793,6 +793,11 @@ tbody tr:hover {
   flex-shrink: 0;
 }
 
+/* .tooltip-wrapper is the actual flex item here (Tooltip wraps .book-card-serie
+   in its own span), so it must carry the shrink/overflow rules itself — putting
+   them only on .book-card-serie has no effect since that span isn't a direct
+   flex child. Without this override, the wrapper never shrinks and the series
+   ellipsis truncation silently breaks. */
 .book-card-title-row .tooltip-wrapper {
   flex-shrink: 1;
   min-width: 0;
