@@ -778,7 +778,7 @@ tbody tr:hover {
 .book-card-title-row {
   display: flex;
   gap: 8px;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
   min-width: 0;
 }
@@ -793,7 +793,7 @@ tbody tr:hover {
 }
 
 .book-card-serie {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--accent-color);
   white-space: nowrap;
