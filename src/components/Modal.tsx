@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { t } from '../services/i18nService'
+import IconClose from '../assets/icons/close.svg?react'
 
 interface ModalProps {
   isOpen: boolean
@@ -40,15 +41,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             aria-label={t('livreForm.close')}
             onClick={onClose}
           >
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path
-                d="M6 6l12 12M18 6L6 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
+            <IconClose width={18} height={18} aria-hidden="true" />
           </button>
         </div>
         <div className="modal-body">{children}</div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Modal } from './Modal'
 import { StarRating } from './StarRating'
+import { LivreImageUploader } from './LivreImageUploader'
 import { t } from '../services/i18nService'
 import {
   emptyToNull,
@@ -48,6 +49,7 @@ interface FormState {
   dateFinLecture: string
   note: number | null
   auteurId: string
+  image: string | null
 }
 
 function emptyFormState(): FormState {
@@ -69,6 +71,7 @@ function emptyFormState(): FormState {
     dateFinLecture: '',
     note: null,
     auteurId: '',
+    image: null,
   }
 }
 
@@ -91,6 +94,7 @@ function formStateFromLivre(livre: Livre): FormState {
     dateFinLecture: isoToFrDate(livre.dateFinLecture),
     note: livre.note,
     auteurId: livre.auteur_id?.toString() ?? '',
+    image: livre.image ?? null,
   }
 }
 
@@ -113,6 +117,7 @@ function buildPayload(state: FormState): LivreFormPayload {
     dateFinLecture: frDateToIso(state.dateFinLecture),
     note: state.note,
     auteur_id: state.auteurId ? Number(state.auteurId) : null,
+    image: state.image,
   }
 }
 
@@ -211,6 +216,14 @@ export function LivreFormModal({
             {t('livreForm.error')}
           </p>
         )}
+        <div className="form-group form-group-wide">
+          <label htmlFor="image">{t('livreForm.field.image')}</label>
+          <LivreImageUploader
+            value={form.image}
+            onChange={(path) => updateField('image', path)}
+            disabled={saving}
+          />
+        </div>
         <div className="form-grid">
           <div className="form-group">
             <label htmlFor="titre">{t('livreForm.field.titre')}</label>

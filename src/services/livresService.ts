@@ -9,15 +9,37 @@ export interface LivresPage {
   count: number
 }
 
-export async function fetchLivres(page: number): Promise<LivresPage> {
+export type LivresFilter =
+  | { type: 'titre'; titre: string }
+  | { type: 'auteur'; auteurId: number }
+  | { type: 'editeur'; editeurId: number }
+
+export async function fetchLivres(
+  page: number,
+  filter?: LivresFilter,
+): Promise<LivresPage> {
   const { from, to } = pageToRange(page, PAGE_SIZE)
 
-  const { data, count, error } = await supabase
+  let query = supabase
     .from('livres_livres')
     .select('*', { count: 'exact' })
     .order('dateDebutLecture', { ascending: false })
-    .not('dateDebutLecture', 'is', null)
-    .range(from, to)
+
+  if (!filter) {
+    query = query.not('dateDebutLecture', 'is', null)
+  }
+
+  if (filter) {
+    if (filter.type === 'titre') {
+      query = query.ilike('titre', filter.titre)
+    } else if (filter.type === 'auteur') {
+      query = query.eq('auteur_id', filter.auteurId)
+    } else if (filter.type === 'editeur') {
+      query = query.eq('numEditeur_id', filter.editeurId)
+    }
+  }
+
+  const { data, count, error } = await query.range(from, to)
 
   if (error) throw error
 
@@ -26,7 +48,7 @@ export async function fetchLivres(page: number): Promise<LivresPage> {
 
 export type LivreFormPayload = Omit<
   Livre,
-  'id' | 'illustrateur_id' | 'image' | 'dedicace' | 'emprunteur'
+  'id' | 'illustrateur_id' | 'dedicace' | 'emprunteur'
 >
 
 export async function createLivre(payload: LivreFormPayload): Promise<void> {
