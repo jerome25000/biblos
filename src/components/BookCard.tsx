@@ -3,6 +3,7 @@ import { formatDate } from '../services/utilities'
 import { getPublicImageUrl } from '../services/storageService'
 import { t } from '../services/i18nService'
 import { Tooltip } from './Tooltip'
+import { StarRating } from './StarRating'
 import IconImageEmpty from '../assets/icons/image-empty.svg?react'
 
 interface BookCardProps {
@@ -53,6 +54,10 @@ export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
             {auteur.prenom} {auteur.nom}
           </p>
         )}
+
+        <div className="book-card-rating-row">
+          <StarRating value={livre.note ?? null} disabled={true} />
+        </div>
 
         <div className="book-card-dates">
           {livre.dateDebutLecture && (

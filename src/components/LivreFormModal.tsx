@@ -420,6 +420,7 @@ export function LivreFormModal({
               value={form.note}
               onChange={(value) => updateField('note', value)}
               disabled={saving}
+              displayValue={true}
             />
           </div>
           <div className="form-group form-group-wide">

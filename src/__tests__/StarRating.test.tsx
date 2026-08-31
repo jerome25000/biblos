@@ -4,7 +4,7 @@ import { StarRating } from '../components/StarRating'
 
 describe('StarRating', () => {
   it('shows the current value', () => {
-    render(<StarRating value={3.5} onChange={vi.fn()} />)
+    render(<StarRating value={3.5} onChange={vi.fn()} displayValue />)
     expect(screen.getByText('3.5')).toBeInTheDocument()
   })
 

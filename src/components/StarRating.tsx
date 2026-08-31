@@ -3,8 +3,9 @@ import { t } from '../services/i18nService'
 
 interface StarRatingProps {
   value: number | null
-  onChange: (value: number | null) => void
+  onChange?: (value: number | null) => void
   disabled?: boolean
+  displayValue?: boolean
 }
 
 const STAR_COUNT = 5
@@ -15,13 +16,13 @@ function starFillPercent(value: number | null, starIndex: number): number {
   return Math.max(0, Math.min(1, filled)) * 100
 }
 
-export function StarRating({ value, onChange, disabled }: StarRatingProps) {
+export function StarRating({ value, onChange, disabled, displayValue }: StarRatingProps) {
   const id = useId()
 
   function handleSelect(starIndex: number, half: 'left' | 'right') {
     if (disabled) return
     const selected = half === 'left' ? starIndex - 0.5 : starIndex
-    onChange(value === selected ? null : selected)
+    onChange?.(value === selected ? null : selected)
   }
 
   return (
@@ -67,7 +68,9 @@ export function StarRating({ value, onChange, disabled }: StarRatingProps) {
           </span>
         ),
       )}
-      <span className="star-rating-value">{value ?? ''}</span>
+      { displayValue && (
+       <span className="star-rating-value">{value ?? ''}</span>
+      )}
     </div>
   )
 }
