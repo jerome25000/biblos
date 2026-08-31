@@ -793,15 +793,21 @@ tbody tr:hover {
   flex-shrink: 0;
 }
 
+.book-card-title-row .tooltip-wrapper {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .book-card-serie {
+  display: block;
+  width: 100%;
   font-size: 14px;
   font-weight: 600;
   color: var(--accent-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 1;
-  min-width: 0;
 }
 
 .book-card-auteur {

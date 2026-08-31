@@ -28,8 +28,8 @@ export function Tooltip({ text, children }: TooltipProps) {
       }
 
       setPosition({
-        top: rect.top + window.scrollY - bubbleHeight - 10,
-        left: left + window.scrollX,
+        top: rect.top - bubbleHeight - 10,
+        left,
       })
     }
   }, [isVisible])
