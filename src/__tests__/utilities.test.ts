@@ -8,6 +8,7 @@ import {
   pageToRange,
   todayFrDate,
   totalPages,
+  formatBytes,
 } from '../services/utilities'
 
 describe('formatDate', () => {
@@ -111,5 +112,31 @@ describe('emptyToNull', () => {
 
   it('returns the trimmed value otherwise', () => {
     expect(emptyToNull('  hello  ')).toBe('hello')
+  })
+})
+
+describe('formatBytes', () => {
+  it('returns "0 bytes" for zero bytes', () => {
+    expect(formatBytes(0)).toBe('0 bytes')
+  })
+
+  it('formats bytes in KB range', () => {
+    const result = formatBytes(1024)
+    expect(result).toMatch(/^1\.00 KB$/)
+  })
+
+  it('formats bytes in KB with decimals', () => {
+    const result = formatBytes(1536)
+    expect(result).toMatch(/^1\.5[0-9] KB$/)
+  })
+
+  it('formats bytes in MB range', () => {
+    const result = formatBytes(1024 * 1024)
+    expect(result).toMatch(/^1\.00 MB$/)
+  })
+
+  it('formats large byte values correctly', () => {
+    const result = formatBytes(2560000)
+    expect(result).toMatch(/^2\.[0-9]{2} MB$/)
   })
 })

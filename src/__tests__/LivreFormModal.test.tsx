@@ -21,6 +21,16 @@ vi.mock('../services/livresService', () => ({
   updateLivre: updateLivreMock,
 }))
 
+vi.mock('../components/LivreImageUploader', () => ({
+  LivreImageUploader: vi.fn(({ onChange }: { onChange: (path: string) => void }) => (
+    <input
+      type="text"
+      data-testid="image-uploader"
+      onChange={(e) => onChange(e.target.value)}
+    />
+  )),
+}))
+
 const { LivreFormModal } = await import('../components/LivreFormModal')
 
 function makeLivre(overrides: Partial<Livre> = {}): Livre {
@@ -156,5 +166,28 @@ describe('LivreFormModal', () => {
     fireEvent.click(screen.getByText('Enregistrer'))
 
     expect(await screen.findByRole('alert')).toBeInTheDocument()
+  })
+
+  it('includes image field in payload when set', async () => {
+    render(
+      <LivreFormModal
+        isOpen
+        onClose={vi.fn()}
+        onSaved={vi.fn()}
+        livre={makeLivre({ image: 'images/test.jpg' })}
+      />,
+    )
+
+    await screen.findByRole('option', { name: 'Robert Laffont' })
+    fireEvent.click(screen.getByText('Enregistrer'))
+
+    await waitFor(() => {
+      expect(updateLivreMock).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({
+          image: 'images/test.jpg',
+        })
+      )
+    })
   })
 })

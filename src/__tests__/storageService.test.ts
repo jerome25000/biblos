@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getPublicImageUrl } from '../services/storageService'
+import { getPublicImageUrl, uploadImage } from '../services/storageService'
 import * as supabaseModule from '../supabaseClient'
 
 vi.mock('../supabaseClient')
@@ -43,5 +43,42 @@ describe('storageService', () => {
 
     getPublicImageUrl('images/test.jpg')
     expect(mockFrom).toHaveBeenCalledWith('images')
+  })
+
+  describe('uploadImage', () => {
+    it('uploads a blob to the correct path', async () => {
+      const mockUpload = vi.fn().mockResolvedValue({ error: null })
+      const mockFrom = vi.fn().mockReturnValue({
+        upload: mockUpload,
+      })
+      vi.spyOn(supabaseModule, 'supabase', 'get').mockReturnValue({
+        storage: { from: mockFrom },
+      } as any)
+
+      const blob = new Blob(['test'], { type: 'image/jpeg' })
+      await uploadImage('images/test.jpg', blob)
+
+      expect(mockFrom).toHaveBeenCalledWith('images')
+      expect(mockUpload).toHaveBeenCalledWith('images/test.jpg', blob, {
+        upsert: true,
+        contentType: 'image/jpeg',
+      })
+    })
+
+    it('throws on upload error', async () => {
+      const mockError = new Error('Upload failed')
+      const mockUpload = vi.fn().mockResolvedValue({ error: mockError })
+      const mockFrom = vi.fn().mockReturnValue({
+        upload: mockUpload,
+      })
+      vi.spyOn(supabaseModule, 'supabase', 'get').mockReturnValue({
+        storage: { from: mockFrom },
+      } as any)
+
+      const blob = new Blob(['test'], { type: 'image/jpeg' })
+      await expect(uploadImage('images/test.jpg', blob)).rejects.toThrow(
+        'Upload failed'
+      )
+    })
   })
 })

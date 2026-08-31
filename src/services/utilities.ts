@@ -59,3 +59,11 @@ export function pageToRange(
 export function totalPages(count: number, pageSize: number): number {
   return Math.max(1, Math.ceil(count / pageSize))
 }
+
+export function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 bytes'
+  const k = 1024
+  const sizes = ['bytes', 'KB', 'MB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
+}

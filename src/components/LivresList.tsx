@@ -248,7 +248,14 @@ export function LivresList() {
             <div className="books-grid">
               {livres.map((livre) => {
                 const auteur = livre.auteur_id ? auteurs.get(livre.auteur_id) ?? null : null
-                return <BookCard key={livre.id} livre={livre} auteur={auteur} />
+                return (
+                  <BookCard
+                    key={livre.id}
+                    livre={livre}
+                    auteur={auteur}
+                    onEdit={openEditModal}
+                  />
+                )
               })}
             </div>
           )}

@@ -48,7 +48,7 @@ export async function fetchLivres(
 
 export type LivreFormPayload = Omit<
   Livre,
-  'id' | 'illustrateur_id' | 'image' | 'dedicace' | 'emprunteur'
+  'id' | 'illustrateur_id' | 'dedicace' | 'emprunteur'
 >
 
 export async function createLivre(payload: LivreFormPayload): Promise<void> {

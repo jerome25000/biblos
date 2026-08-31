@@ -8,14 +8,20 @@ import IconImageEmpty from '../assets/icons/image-empty.svg?react'
 interface BookCardProps {
   livre: Livre
   auteur: Auteur | null
+  onEdit?: (livre: Livre) => void
 }
 
-export function BookCard({ livre, auteur }: BookCardProps) {
+export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
   const imageUrl = getPublicImageUrl(livre.image)
 
   return (
     <div className="book-card">
-      <div className="book-card-image-wrapper">
+      <button
+        type="button"
+        className="book-card-image-wrapper"
+        onClick={() => onEdit?.(livre)}
+        title={onEdit ? 'Click to edit' : undefined}
+      >
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -27,7 +33,7 @@ export function BookCard({ livre, auteur }: BookCardProps) {
             <IconImageEmpty width={40} height={40} aria-hidden="true" />
           </div>
         )}
-      </div>
+      </button>
 
       <div className="book-card-content">
         <h3 className="book-card-title">{livre.titre}</h3>
