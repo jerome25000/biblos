@@ -36,7 +36,17 @@ export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
       </button>
 
       <div className="book-card-content">
-        <h3 className="book-card-title">{livre.titre}</h3>
+        <div className="book-card-title-row">
+          <h3 className="book-card-title">{livre.titre}</h3>
+          {livre.serie && (
+            <Tooltip text={`${livre.serie}${livre.num_serie ? ` #${livre.num_serie}` : ''}`}>
+              <span className="book-card-serie">
+                {livre.serie}
+                {livre.num_serie && ` #${livre.num_serie}`}
+              </span>
+            </Tooltip>
+          )}
+        </div>
 
         {auteur && (
           <p className="book-card-auteur">
