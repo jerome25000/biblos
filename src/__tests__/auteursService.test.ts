@@ -6,7 +6,7 @@ vi.mock('../supabaseClient', () => ({
   supabase: { from: fromMock },
 }))
 
-const { fetchAuteursPage, createAuteur, updateAuteur, AUTEURS_PAGE_SIZE } =
+const { fetchAuteursPage, createAuteur, updateAuteur, deleteAuteur, countLivresByAuteur, AUTEURS_PAGE_SIZE } =
   await import('../services/auteursService')
 
 describe('fetchAuteursPage', () => {
@@ -122,5 +122,64 @@ describe('updateAuteur', () => {
     await expect(updateAuteur(42, { nom: 'Herbert' } as never)).rejects.toThrow(
       'boom',
     )
+  })
+})
+
+describe('countLivresByAuteur', () => {
+  let selectMock: ReturnType<typeof vi.fn>
+  let eqMock: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    eqMock = vi.fn().mockResolvedValue({ count: 5, error: null })
+    selectMock = vi.fn().mockReturnValue({ eq: eqMock })
+    fromMock.mockReturnValue({ select: selectMock })
+  })
+
+  it('counts livres for the given auteur_id', async () => {
+    const count = await countLivresByAuteur(42)
+
+    expect(fromMock).toHaveBeenCalledWith('livres_livres')
+    expect(selectMock).toHaveBeenCalledWith('*', { count: 'exact', head: true })
+    expect(eqMock).toHaveBeenCalledWith('auteur_id', 42)
+    expect(count).toBe(5)
+  })
+
+  it('returns 0 when count is null', async () => {
+    eqMock.mockResolvedValue({ count: null, error: null })
+
+    const count = await countLivresByAuteur(42)
+
+    expect(count).toBe(0)
+  })
+
+  it('throws when supabase returns an error', async () => {
+    eqMock.mockResolvedValue({ count: null, error: new Error('boom') })
+
+    await expect(countLivresByAuteur(42)).rejects.toThrow('boom')
+  })
+})
+
+describe('deleteAuteur', () => {
+  let deleteMock: ReturnType<typeof vi.fn>
+  let eqMock: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    eqMock = vi.fn().mockResolvedValue({ error: null })
+    deleteMock = vi.fn().mockReturnValue({ eq: eqMock })
+    fromMock.mockReturnValue({ delete: deleteMock })
+  })
+
+  it('deletes the auteur matching the id', async () => {
+    await deleteAuteur(42)
+
+    expect(fromMock).toHaveBeenCalledWith('livres_auteur')
+    expect(deleteMock).toHaveBeenCalled()
+    expect(eqMock).toHaveBeenCalledWith('id', 42)
+  })
+
+  it('throws when supabase returns an error', async () => {
+    eqMock.mockResolvedValue({ error: new Error('boom') })
+
+    await expect(deleteAuteur(42)).rejects.toThrow('boom')
   })
 })

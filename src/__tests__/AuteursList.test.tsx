@@ -8,6 +8,8 @@ vi.mock('../services/auteursService', () => ({
   fetchAuteursPage: fetchAuteursPageMock,
   createAuteur: vi.fn(),
   updateAuteur: vi.fn(),
+  deleteAuteur: vi.fn(),
+  countLivresByAuteur: vi.fn(),
   AUTEURS_PAGE_SIZE: 50,
 }))
 
@@ -93,5 +95,14 @@ describe('AuteursList', () => {
     await screen.findByText('Herbert')
 
     expect(screen.getByLabelText('pagination')).toBeInTheDocument()
+  })
+
+  it('opens the delete confirmation modal when clicking the delete button on a row', async () => {
+    fetchAuteursPageMock.mockResolvedValue({ auteurs: [makeAuteur()], count: 1 })
+
+    render(<AuteursList />)
+    fireEvent.click(await screen.findByLabelText("Supprimer l'auteur"))
+
+    expect(screen.getByText('Confirmer la suppression')).toBeInTheDocument()
   })
 })

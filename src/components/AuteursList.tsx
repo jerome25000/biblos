@@ -6,10 +6,12 @@ import { t } from '../services/i18nService'
 import { Pagination } from './Pagination'
 import { AuteurFormModal } from './AuteurFormModal'
 import { AuteurSearchModal } from './AuteurSearchModal'
+import { AuteurDeleteConfirmModal } from './AuteurDeleteConfirmModal'
 import { fetchAuteurById, fetchPays } from '../services/referentielsService'
 import IconSearch from '../assets/icons/search.svg?react'
 import IconPlus from '../assets/icons/plus.svg?react'
 import IconEdit from '../assets/icons/edit.svg?react'
+import IconTrash from '../assets/icons/trash.svg?react'
 
 export function AuteursList() {
   const [page, setPage] = useState(1)
@@ -20,6 +22,8 @@ export function AuteursList() {
   const [editingAuteur, setEditingAuteur] = useState<Auteur | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const [deletingAuteur, setDeletingAuteur] = useState<Auteur | null>(null)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [activeFilter, setActiveFilter] = useState<AuteursFilter | null>(null)
   const [filterAuteurData, setFilterAuteurData] = useState<Auteur | null>(null)
   const [pays, setPays] = useState<Map<number, Pays>>(new Map())
@@ -82,6 +86,15 @@ export function AuteursList() {
 
   function closeModal() {
     setModalOpen(false)
+  }
+
+  function openDeleteModal(auteur: Auteur) {
+    setDeletingAuteur(auteur)
+    setDeleteModalOpen(true)
+  }
+
+  function closeDeleteModal() {
+    setDeleteModalOpen(false)
   }
 
   function handleSearchApply(filter: AuteursFilter) {
@@ -170,6 +183,14 @@ export function AuteursList() {
                     >
                       <IconEdit width={16} height={16} aria-hidden="true" />
                     </button>
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      aria-label={t('auteurs.delete')}
+                      onClick={() => openDeleteModal(auteur)}
+                    >
+                      <IconTrash width={16} height={16} aria-hidden="true" />
+                    </button>
                   </td>
                   <td>{auteur.nom}</td>
                   <td>{auteur.prenom}</td>
@@ -197,6 +218,12 @@ export function AuteursList() {
         isOpen={searchModalOpen}
         onClose={() => setSearchModalOpen(false)}
         onApply={handleSearchApply}
+      />
+      <AuteurDeleteConfirmModal
+        isOpen={deleteModalOpen}
+        auteur={deletingAuteur}
+        onClose={closeDeleteModal}
+        onDeleted={loadAuteurs}
       />
     </section>
   )

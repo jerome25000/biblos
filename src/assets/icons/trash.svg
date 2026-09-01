@@ -1,0 +1,15 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M19 4h-4V3a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v1H5a2 2 0 0 0 0 4h1v11a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V8h1a2 2 0 0 0 0-4z"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinejoin="round"
+    fill="none"
+  />
+  <path
+    d="M10 12v5m4-5v5"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+  />
+</svg>
