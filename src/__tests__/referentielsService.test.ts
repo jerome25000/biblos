@@ -11,6 +11,7 @@ const {
   fetchEditeurs,
   fetchGenres,
   fetchTypesLivre,
+  fetchPays,
   fetchAuteurById,
   fetchEditeurById,
 } = await import('../services/referentielsService')
@@ -62,6 +63,15 @@ describe('referentielsService', () => {
 
     expect(fromMock).toHaveBeenCalledWith('livres_typelivre')
     expect(orderMock).toHaveBeenCalledWith('type', { ascending: true })
+  })
+
+  it('fetches pays ordered by nom', async () => {
+    orderMock.mockResolvedValue({ data: [], error: null })
+
+    await fetchPays()
+
+    expect(fromMock).toHaveBeenCalledWith('livres_pays')
+    expect(orderMock).toHaveBeenCalledWith('nom', { ascending: true })
   })
 
   it('throws when supabase returns an error', async () => {

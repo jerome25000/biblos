@@ -1,5 +1,5 @@
 import { supabase } from '../supabaseClient'
-import type { Auteur, Editeur, Genre, TypeLivre } from '../types/database'
+import type { Auteur, Editeur, Genre, Pays, TypeLivre } from '../types/database'
 
 export async function fetchAuteurs(): Promise<Auteur[]> {
   const { data, error } = await supabase
@@ -39,6 +39,16 @@ export async function fetchTypesLivre(): Promise<TypeLivre[]> {
 
   if (error) throw error
   return (data ?? []) as TypeLivre[]
+}
+
+export async function fetchPays(): Promise<Pays[]> {
+  const { data, error } = await supabase
+    .from('livres_pays')
+    .select('*')
+    .order('nom', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as Pays[]
 }
 
 export async function fetchAuteurById(id: number): Promise<Auteur | null> {
