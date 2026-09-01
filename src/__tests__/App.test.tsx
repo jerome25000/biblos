@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { Session } from '@supabase/supabase-js'
 
 const getSessionMock = vi.fn()
@@ -37,7 +37,20 @@ describe('App', () => {
 
     render(<App />)
 
-    expect(await screen.findByText('Mes livres')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Mes livres' }),
+    ).toBeInTheDocument()
+  })
+
+  it('switches to the Auteurs tab when clicked', async () => {
+    getSessionMock.mockResolvedValue(session)
+
+    render(<App />)
+
+    await screen.findByRole('tab', { name: 'Mes livres' })
+    fireEvent.click(screen.getByRole('tab', { name: 'Auteurs' }))
+
+    expect(await screen.findByText('Ajouter un auteur')).toBeInTheDocument()
   })
 
   it('subscribes to auth state changes on mount and unsubscribes on unmount', async () => {

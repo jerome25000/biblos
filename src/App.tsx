@@ -5,11 +5,15 @@ import { t } from './services/i18nService'
 import { exportDatabaseAsSQL, downloadSQL } from './services/exportSqlService'
 import { Login } from './components/Login'
 import { LivresList } from './components/LivresList'
+import { AuteursList } from './components/AuteursList'
+
+type Tab = 'livres' | 'auteurs'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
   const [isExporting, setIsExporting] = useState(false)
+  const [activeTab, setActiveTab] = useState<Tab>('livres')
 
   useEffect(() => {
     let cancelled = false
@@ -78,8 +82,37 @@ function App() {
           </button>
         </div>
       </header>
-      <main className="dashboard-main">
-        <LivresList />
+      <nav className="dashboard-tabs" role="tablist" aria-label={t('app.tabs.label')}>
+        <button
+          type="button"
+          role="tab"
+          id="tab-livres"
+          aria-selected={activeTab === 'livres'}
+          aria-controls="tabpanel-content"
+          className={`dashboard-tab${activeTab === 'livres' ? ' dashboard-tab-active' : ''}`}
+          onClick={() => setActiveTab('livres')}
+        >
+          {t('app.tab.livres')}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="tab-auteurs"
+          aria-selected={activeTab === 'auteurs'}
+          aria-controls="tabpanel-content"
+          className={`dashboard-tab${activeTab === 'auteurs' ? ' dashboard-tab-active' : ''}`}
+          onClick={() => setActiveTab('auteurs')}
+        >
+          {t('app.tab.auteurs')}
+        </button>
+      </nav>
+      <main
+        className="dashboard-main"
+        role="tabpanel"
+        id="tabpanel-content"
+        aria-labelledby={activeTab === 'livres' ? 'tab-livres' : 'tab-auteurs'}
+      >
+        {activeTab === 'livres' ? <LivresList /> : <AuteursList />}
       </main>
     </div>
   )
