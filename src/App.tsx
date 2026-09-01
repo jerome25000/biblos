@@ -6,8 +6,9 @@ import { exportDatabaseAsSQL, downloadSQL } from './services/exportSqlService'
 import { Login } from './components/Login'
 import { LivresList } from './components/LivresList'
 import { AuteursList } from './components/AuteursList'
+import { EditeursList } from './components/EditeursList'
 
-type Tab = 'livres' | 'auteurs'
+type Tab = 'livres' | 'auteurs' | 'editeurs'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -105,14 +106,33 @@ function App() {
         >
           {t('app.tab.auteurs')}
         </button>
+        <button
+          type="button"
+          role="tab"
+          id="tab-editeurs"
+          aria-selected={activeTab === 'editeurs'}
+          aria-controls="tabpanel-content"
+          className={`dashboard-tab${activeTab === 'editeurs' ? ' dashboard-tab-active' : ''}`}
+          onClick={() => setActiveTab('editeurs')}
+        >
+          {t('app.tab.editeurs')}
+        </button>
       </nav>
       <main
         className="dashboard-main"
         role="tabpanel"
         id="tabpanel-content"
-        aria-labelledby={activeTab === 'livres' ? 'tab-livres' : 'tab-auteurs'}
+        aria-labelledby={
+          activeTab === 'livres'
+            ? 'tab-livres'
+            : activeTab === 'auteurs'
+              ? 'tab-auteurs'
+              : 'tab-editeurs'
+        }
       >
-        {activeTab === 'livres' ? <LivresList /> : <AuteursList />}
+        {activeTab === 'livres' && <LivresList />}
+        {activeTab === 'auteurs' && <AuteursList />}
+        {activeTab === 'editeurs' && <EditeursList />}
       </main>
     </div>
   )
