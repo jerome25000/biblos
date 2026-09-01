@@ -10,6 +10,7 @@ import {
   todayFrDate,
   totalPages,
   formatBytes,
+  countByKey,
 } from '../services/utilities'
 
 describe('formatDate', () => {
@@ -173,5 +174,55 @@ describe('formatBytes', () => {
   it('formats large byte values correctly', () => {
     const result = formatBytes(2560000)
     expect(result).toMatch(/^2\.[0-9]{2} MB$/)
+  })
+})
+
+describe('countByKey', () => {
+  it('groups items by key and counts occurrences', () => {
+    const items = [
+      { id: 1, group: 'a' },
+      { id: 2, group: 'a' },
+      { id: 3, group: 'b' },
+    ]
+
+    const counts = countByKey(items, (item) => item.group)
+
+    expect(counts).toEqual(
+      new Map([
+        ['a', 2],
+        ['b', 1],
+      ]),
+    )
+  })
+
+  it('skips items with null keys', () => {
+    const items = [
+      { id: 1, group: 'a' },
+      { id: 2, group: null },
+      { id: 3, group: 'a' },
+    ]
+
+    const counts = countByKey(items, (item) => item.group as string | null)
+
+    expect(counts).toEqual(new Map([['a', 2]]))
+  })
+
+  it('returns empty map for empty input', () => {
+    const counts = countByKey([], () => 'any')
+
+    expect(counts).toEqual(new Map())
+  })
+
+  it('handles numeric keys', () => {
+    const items = [{ num: 1 }, { num: 1 }, { num: 2 }]
+
+    const counts = countByKey(items, (item) => item.num)
+
+    expect(counts).toEqual(
+      new Map([
+        [1, 2],
+        [2, 1],
+      ]),
+    )
   })
 })

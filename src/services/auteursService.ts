@@ -1,6 +1,6 @@
 import { supabase } from '../supabaseClient'
 import type { Auteur } from '../types/database'
-import { pageToRange } from './utilities'
+import { pageToRange, countByKey } from './utilities'
 import { AUTEURS_PAGE_SIZE } from '../constants'
 
 export { AUTEURS_PAGE_SIZE }
@@ -59,6 +59,21 @@ export async function countLivresByAuteur(auteurId: number): Promise<number> {
     .eq('auteur_id', auteurId)
   if (error) throw error
   return count ?? 0
+}
+
+export async function countLivresByAuteurs(
+  auteurIds: number[],
+): Promise<Map<number, number>> {
+  if (auteurIds.length === 0) return new Map()
+
+  const { data, error } = await supabase
+    .from('livres_livres')
+    .select('auteur_id')
+    .in('auteur_id', auteurIds)
+
+  if (error) throw error
+
+  return countByKey((data ?? []) as { auteur_id: number | null }[], (row) => row.auteur_id)
 }
 
 export async function deleteAuteur(id: number): Promise<void> {

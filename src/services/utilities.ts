@@ -106,3 +106,16 @@ export function formatBytes(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
 }
+
+export function countByKey<T, K>(
+  items: T[],
+  keyOf: (item: T) => K | null,
+): Map<K, number> {
+  const counts = new Map<K, number>()
+  for (const item of items) {
+    const key = keyOf(item)
+    if (key === null) continue
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+  return counts
+}

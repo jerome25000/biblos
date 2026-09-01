@@ -6,7 +6,7 @@ vi.mock('../supabaseClient', () => ({
   supabase: { from: fromMock },
 }))
 
-const { fetchAuteursPage, createAuteur, updateAuteur, deleteAuteur, countLivresByAuteur, AUTEURS_PAGE_SIZE } =
+const { fetchAuteursPage, createAuteur, updateAuteur, deleteAuteur, countLivresByAuteur, countLivresByAuteurs, AUTEURS_PAGE_SIZE } =
   await import('../services/auteursService')
 
 describe('fetchAuteursPage', () => {
@@ -156,6 +156,63 @@ describe('countLivresByAuteur', () => {
     eqMock.mockResolvedValue({ count: null, error: new Error('boom') })
 
     await expect(countLivresByAuteur(42)).rejects.toThrow('boom')
+  })
+})
+
+describe('countLivresByAuteurs', () => {
+  let selectMock: ReturnType<typeof vi.fn>
+  let inMock: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    fromMock.mockClear()
+    inMock = vi.fn().mockResolvedValue({
+      data: [
+        { auteur_id: 1 },
+        { auteur_id: 1 },
+        { auteur_id: 2 },
+      ],
+      error: null,
+    })
+    selectMock = vi.fn().mockReturnValue({ in: inMock })
+    fromMock.mockReturnValue({ select: selectMock })
+  })
+
+  it('returns a map of auteur_id to book count', async () => {
+    const counts = await countLivresByAuteurs([1, 2, 3])
+
+    expect(fromMock).toHaveBeenCalledWith('livres_livres')
+    expect(selectMock).toHaveBeenCalledWith('auteur_id')
+    expect(inMock).toHaveBeenCalledWith('auteur_id', [1, 2, 3])
+    expect(counts).toEqual(
+      new Map([
+        [1, 2],
+        [2, 1],
+      ]),
+    )
+  })
+
+  it('returns empty map when no authors given', async () => {
+    const counts = await countLivresByAuteurs([])
+
+    expect(counts).toEqual(new Map())
+    expect(fromMock).not.toHaveBeenCalled()
+  })
+
+  it('skips null auteur_id in aggregation', async () => {
+    inMock.mockResolvedValue({
+      data: [{ auteur_id: 1 }, { auteur_id: null }, { auteur_id: 1 }],
+      error: null,
+    })
+
+    const counts = await countLivresByAuteurs([1])
+
+    expect(counts).toEqual(new Map([[1, 2]]))
+  })
+
+  it('throws when supabase returns an error', async () => {
+    inMock.mockResolvedValue({ data: null, error: new Error('boom') })
+
+    await expect(countLivresByAuteurs([1, 2])).rejects.toThrow('boom')
   })
 })
 

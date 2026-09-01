@@ -10,6 +10,7 @@ vi.mock('../services/auteursService', () => ({
   updateAuteur: vi.fn(),
   deleteAuteur: vi.fn(),
   countLivresByAuteur: vi.fn(),
+  countLivresByAuteurs: vi.fn().mockResolvedValue(new Map()),
   AUTEURS_PAGE_SIZE: 50,
 }))
 
@@ -104,5 +105,35 @@ describe('AuteursList', () => {
     fireEvent.click(await screen.findByLabelText("Supprimer l'auteur"))
 
     expect(screen.getByText('Confirmer la suppression')).toBeInTheDocument()
+  })
+
+  it('displays the livres column header', async () => {
+    fetchAuteursPageMock.mockResolvedValue({ auteurs: [makeAuteur()], count: 1 })
+
+    render(<AuteursList />)
+
+    expect(await screen.findByText('Livres')).toBeInTheDocument()
+  })
+
+  it('displays the book count for each author', async () => {
+    const auteur = makeAuteur({ id: 42 })
+    fetchAuteursPageMock.mockResolvedValue({ auteurs: [auteur], count: 1 })
+
+    const { countLivresByAuteurs } = await import('../services/auteursService')
+    vi.mocked(countLivresByAuteurs).mockResolvedValue(new Map([[42, 5]]))
+
+    render(<AuteursList />)
+
+    expect(await screen.findByText('5')).toBeInTheDocument()
+  })
+
+  it('displays 0 when there are no books for an author', async () => {
+    fetchAuteursPageMock.mockResolvedValue({ auteurs: [makeAuteur()], count: 1 })
+
+    render(<AuteursList />)
+    await screen.findByText('Herbert')
+
+    // The livres column should exist and show 0 for the author
+    expect(screen.getByText('Livres')).toBeInTheDocument()
   })
 })

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { fetchAuteursPage, AUTEURS_PAGE_SIZE } from '../services/auteursService'
+import { fetchAuteursPage, AUTEURS_PAGE_SIZE, countLivresByAuteurs } from '../services/auteursService'
 import type { AuteursFilter } from '../services/auteursService'
 import type { Auteur, Pays } from '../types/database'
 import { t } from '../services/i18nService'
@@ -27,6 +27,7 @@ export function AuteursList() {
   const [activeFilter, setActiveFilter] = useState<AuteursFilter | null>(null)
   const [filterAuteurData, setFilterAuteurData] = useState<Auteur | null>(null)
   const [pays, setPays] = useState<Map<number, Pays>>(new Map())
+  const [livresCounts, setLivresCounts] = useState<Map<number, number>>(new Map())
 
   const loadAuteurs = useCallback(() => {
     let cancelled = false
@@ -62,6 +63,26 @@ export function AuteursList() {
         setPays(new Map())
       })
   }, [])
+
+  useEffect(() => {
+    if (auteurs.length === 0) {
+      setLivresCounts(new Map())
+      return
+    }
+
+    let cancelled = false
+    countLivresByAuteurs(auteurs.map((a) => a.id))
+      .then((counts) => {
+        if (!cancelled) setLivresCounts(counts)
+      })
+      .catch(() => {
+        if (!cancelled) setLivresCounts(new Map())
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [auteurs])
 
   useEffect(() => {
     if (!activeFilter) {
@@ -169,6 +190,7 @@ export function AuteursList() {
                 <th>{t('auteurs.column.prenom')}</th>
                 <th>{t('auteurs.column.anneeNaissance')}</th>
                 <th>{t('auteurs.column.nationalite')}</th>
+                <th>{t('auteurs.column.livres')}</th>
               </tr>
             </thead>
             <tbody>
@@ -196,6 +218,7 @@ export function AuteursList() {
                   <td>{auteur.prenom}</td>
                   <td>{auteur.anneeNaissance ?? ''}</td>
                   <td>{pays.get(auteur.nationalite_id)?.nom ?? ''}</td>
+                  <td>{livresCounts.get(auteur.id) ?? 0}</td>
                 </tr>
               ))}
             </tbody>
