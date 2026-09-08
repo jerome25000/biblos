@@ -1,4 +1,5 @@
 import { getLocale } from './i18nService'
+import { MOBILE_BREAKPOINT_PX } from '../constants'
 
 export function formatDate(value: string | null): string {
   if (!value) return ''
@@ -118,4 +119,10 @@ export function countByKey<T, K>(
     counts.set(key, (counts.get(key) ?? 0) + 1)
   }
   return counts
+}
+
+export type ViewMode = 'table' | 'cards'
+
+export function getDefaultViewMode(viewportWidth: number): ViewMode {
+  return viewportWidth < MOBILE_BREAKPOINT_PX ? 'cards' : 'table'
 }

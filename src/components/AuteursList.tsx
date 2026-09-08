@@ -182,6 +182,7 @@ export function AuteursList() {
       )}
       {!loading && !error && auteurs.length > 0 && (
         <>
+          <div className="table-scroll">
           <table>
             <thead>
               <tr>
@@ -223,6 +224,7 @@ export function AuteursList() {
               ))}
             </tbody>
           </table>
+          </div>
           <Pagination
             page={page}
             count={count}

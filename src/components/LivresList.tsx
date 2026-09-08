@@ -3,7 +3,7 @@ import { fetchLivres, PAGE_SIZE } from '../services/livresService'
 import type { Livre, Auteur, Editeur } from '../types/database'
 import type { LivresFilter } from '../services/livresService'
 import { t } from '../services/i18nService'
-import { formatDate } from '../services/utilities'
+import { formatDate, getDefaultViewMode } from '../services/utilities'
 import { Pagination } from './Pagination'
 import { LivreFormModal } from './LivreFormModal'
 import { LivreSearchModal } from './LivreSearchModal'
@@ -34,7 +34,10 @@ export function LivresList() {
   const [filterItemData, setFilterItemData] = useState<Auteur | Editeur | null>(null)
   const [auteurs, setAuteurs] = useState<Map<number, Auteur>>(new Map())
   const [editeurs, setEditeurs] = useState<Map<number, Editeur>>(new Map())
-  const [viewMode, setViewMode] = useState<ViewMode>(VIEW_MODE_TABLE)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const defaultMode = getDefaultViewMode(window.innerWidth)
+    return defaultMode === 'cards' ? VIEW_MODE_CARDS : VIEW_MODE_TABLE
+  })
 
   const loadLivres = useCallback(() => {
     let cancelled = false
@@ -203,16 +206,17 @@ export function LivresList() {
       {!loading && !error && livres.length > 0 && (
         <>
           {viewMode === VIEW_MODE_TABLE ? (
+            <div className="table-scroll">
             <table>
               <thead>
                 <tr>
                   <th aria-hidden="true"></th>
                   <th>{t('livres.column.titre')}</th>
                   <th>{t('livres.column.auteur')}</th>
-                  <th>{t('livres.column.editeur')}</th>
-                  <th>{t('livres.column.dateDebutLecture')}</th>
-                  <th>{t('livres.column.dateFinLecture')}</th>
-                  <th>{t('livres.column.note')}</th>
+                  <th className="col-editeur">{t('livres.column.editeur')}</th>
+                  <th className="col-date">{t('livres.column.dateDebutLecture')}</th>
+                  <th className="col-date">{t('livres.column.dateFinLecture')}</th>
+                  <th className="col-note">{t('livres.column.note')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -233,10 +237,10 @@ export function LivresList() {
                       </td>
                       <td>{livre.titre}</td>
                       <td>{auteur ? `${auteur.prenom} ${auteur.nom}` : ''}</td>
-                      <td>{editeur?.nom ?? ''}</td>
-                      <td>{formatDate(livre.dateDebutLecture)}</td>
-                      <td>{formatDate(livre.dateFinLecture)}</td>
-                      <td>
+                      <td className="col-editeur">{editeur?.nom ?? ''}</td>
+                      <td className="col-date">{formatDate(livre.dateDebutLecture)}</td>
+                      <td className="col-date">{formatDate(livre.dateFinLecture)}</td>
+                      <td className="col-note">
                         <StarRating value={livre.note ?? null} onChange={() => {}} disabled />
                       </td>
                     </tr>
@@ -244,6 +248,7 @@ export function LivresList() {
                 })}
               </tbody>
             </table>
+            </div>
           ) : (
             <div className="books-grid">
               {livres.map((livre) => {

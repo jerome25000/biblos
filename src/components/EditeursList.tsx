@@ -149,6 +149,7 @@ export function EditeursList() {
       )}
       {!loading && !error && editeurs.length > 0 && (
         <>
+          <div className="table-scroll">
           <table>
             <thead>
               <tr>
@@ -182,6 +183,7 @@ export function EditeursList() {
               ))}
             </tbody>
           </table>
+          </div>
           <Pagination
             page={page}
             count={count}
