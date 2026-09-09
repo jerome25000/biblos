@@ -152,18 +152,8 @@ button:disabled {
 }
 
 .logo-icon {
-  width: 60px;
-  height: 60px;
-  background: var(--primary-gradient);
-  color: white;
-  font-size: 32px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 18px;
-  margin: 0 auto 16px;
-  box-shadow: 0 10px 15px -3px rgba(118, 75, 162, 0.4);
+  width: 120px;
+  height: 120px;    
 }
 
 .login-header h2 {
@@ -309,16 +299,9 @@ button:disabled {
 }
 
 .brand-logo {
-  width: 36px;
-  height: 36px;
-  background: var(--primary-gradient);
-  color: white;
-  font-size: 20px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
+  width: 60px;
+  height: 60px;    
+  object-fit: contain;
 }
 
 .header-brand h1 {

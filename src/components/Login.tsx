@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { signIn } from '../services/authService'
 import { t } from '../services/i18nService'
+import biblosLogo from '../assets/icons/biblos.png'
 
 export function Login() {
   const [email, setEmail] = useState('')
@@ -26,7 +27,7 @@ export function Login() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <div className="logo-icon">B</div>
+          <img src={biblosLogo} alt="Biblos" className="logo-icon" />
           <h2>{t('login.title')}</h2>
         </div>
         <form onSubmit={handleSubmit} className="login-form">

@@ -9,6 +9,7 @@ import { LivresList } from './components/LivresList'
 import { AuteursList } from './components/AuteursList'
 import { EditeursList } from './components/EditeursList'
 import { GUEST_ROLE } from './constants'
+import biblosLogo from './assets/icons/biblos.png'
 
 type Tab = 'livres' | 'auteurs' | 'editeurs'
 
@@ -67,8 +68,8 @@ function AppContent() {
     <div className="dashboard-container">
       <header className="dashboard-header">
         <div className="header-brand">
-          <div className="brand-logo">B</div>
-          <h1>{t('app.title')}</h1>
+          <img src={biblosLogo} alt="Biblos" className="brand-logo" />
+          {/* <h1>{t('app.title')}</h1> */}
         </div>
         <div className="header-user">
           {session.user.email && (
