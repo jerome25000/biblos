@@ -2,6 +2,7 @@ import type { Livre, Auteur } from '../types/database'
 import { formatDate } from '../services/utilities'
 import { getPublicImageUrl } from '../services/storageService'
 import { t } from '../services/i18nService'
+import { useAuth } from '../contexts/AuthContext'
 import { Tooltip } from './Tooltip'
 import { StarRating } from './StarRating'
 import IconImageEmpty from '../assets/icons/image-empty.svg?react'
@@ -13,15 +14,18 @@ interface BookCardProps {
 }
 
 export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
+  const { isGuest } = useAuth()
   const imageUrl = getPublicImageUrl(livre.image)
+  const handleEditClick = isGuest ? undefined : onEdit
 
   return (
     <div className="book-card">
       <button
         type="button"
         className="book-card-image-wrapper"
-        onClick={() => onEdit?.(livre)}
-        title={onEdit ? t('livres.card.editClick') : undefined}
+        onClick={() => handleEditClick?.(livre)}
+        title={handleEditClick ? t('livres.card.editClick') : undefined}
+        disabled={isGuest}
       >
         {imageUrl ? (
           <img

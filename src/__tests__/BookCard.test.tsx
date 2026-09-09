@@ -1,9 +1,26 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { BookCard } from '../components/BookCard'
 import type { Livre, Auteur } from '../types/database'
 
+vi.mock('../contexts/AuthContext', () => {
+  const React = require('react')
+  const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
+  return {
+    useAuth: mockUseAuth,
+    AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  }
+})
+
+const mockUseAuth = vi.mocked(
+  (async () => (await import('../contexts/AuthContext')).useAuth)().then(m => m),
+)
+
 describe('BookCard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   const mockAuteur: Auteur = {
     id: 1,
     nom: 'Hugo',
@@ -85,5 +102,32 @@ describe('BookCard', () => {
     render(<BookCard livre={mockLivre} auteur={mockAuteur} />)
     const placeholder = document.querySelector('.book-card-image-placeholder')
     expect(placeholder).toBeInTheDocument()
+  })
+
+  it('disables the card button for guest users', async () => {
+    const mockUseAuthModule = await import('../contexts/AuthContext')
+    vi.mocked(mockUseAuthModule.useAuth).mockReturnValue({
+      session: null,
+      isGuest: true,
+      loading: false,
+    })
+    render(<BookCard livre={mockLivre} auteur={mockAuteur} />)
+    const cardButton = document.querySelector('.book-card-image-wrapper') as HTMLButtonElement
+    expect(cardButton).toBeDisabled()
+  })
+
+  it('calls onEdit for non-guest users when clicking the card', async () => {
+    const mockUseAuthModule = await import('../contexts/AuthContext')
+    vi.mocked(mockUseAuthModule.useAuth).mockReturnValue({
+      session: null,
+      isGuest: false,
+      loading: false,
+    })
+    const mockOnEdit = vi.fn()
+    render(<BookCard livre={mockLivre} auteur={mockAuteur} onEdit={mockOnEdit} />)
+    const cardButton = document.querySelector('.book-card-image-wrapper') as HTMLButtonElement
+    expect(cardButton).not.toBeDisabled()
+    fireEvent.click(cardButton)
+    expect(mockOnEdit).toHaveBeenCalledWith(mockLivre)
   })
 })

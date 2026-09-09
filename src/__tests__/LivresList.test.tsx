@@ -18,7 +18,21 @@ vi.mock('../services/referentielsService', () => ({
   fetchTypesLivre: vi.fn().mockResolvedValue([]),
 }))
 
+vi.mock('../contexts/AuthContext', () => {
+  const React = require('react')
+  const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
+  return {
+    useAuth: mockUseAuth,
+    AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  }
+})
+
 const { LivresList } = await import('../components/LivresList')
+
+// Get the mocked useAuth from the mock we setup
+const mockUseAuth = vi.mocked(
+  (await import('../contexts/AuthContext')).useAuth,
+)
 
 function makeLivre(overrides: Partial<Livre> = {}): Livre {
   return {
@@ -126,5 +140,41 @@ describe('LivresList', () => {
     fireEvent.click(screen.getByLabelText('Afficher le tableau'))
     expect(screen.getByRole('table')).toBeInTheDocument()
     expect(document.querySelector('.books-grid')).not.toBeInTheDocument()
+  })
+
+  it('hides the add button for guest users', async () => {
+    fetchLivresMock.mockResolvedValue({ livres: [], count: 0 })
+    mockUseAuth.mockReturnValue({ session: null, isGuest: true, loading: false })
+
+    render(<LivresList />)
+
+    expect(screen.queryByText('Ajouter un livre')).not.toBeInTheDocument()
+  })
+
+  it('shows the add button for non-guest users', async () => {
+    fetchLivresMock.mockResolvedValue({ livres: [], count: 0 })
+    mockUseAuth.mockReturnValue({ session: null, isGuest: false, loading: false })
+
+    render(<LivresList />)
+
+    expect(await screen.findByText('Ajouter un livre')).toBeInTheDocument()
+  })
+
+  it('hides the edit button for guest users', async () => {
+    fetchLivresMock.mockResolvedValue({ livres: [makeLivre()], count: 1 })
+    mockUseAuth.mockReturnValue({ session: null, isGuest: true, loading: false })
+
+    render(<LivresList />)
+
+    expect(screen.queryByLabelText('Modifier le livre')).not.toBeInTheDocument()
+  })
+
+  it('shows the edit button for non-guest users', async () => {
+    fetchLivresMock.mockResolvedValue({ livres: [makeLivre()], count: 1 })
+    mockUseAuth.mockReturnValue({ session: null, isGuest: false, loading: false })
+
+    render(<LivresList />)
+
+    expect(await screen.findByLabelText('Modifier le livre')).toBeInTheDocument()
   })
 })

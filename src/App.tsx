@@ -3,14 +3,16 @@ import type { Session } from '@supabase/supabase-js'
 import { getSession, onAuthStateChange, signOut } from './services/authService'
 import { t } from './services/i18nService'
 import { exportDatabaseAsSQL, downloadSQL } from './services/exportSqlService'
+import { AuthProvider } from './contexts/AuthContext'
 import { Login } from './components/Login'
 import { LivresList } from './components/LivresList'
 import { AuteursList } from './components/AuteursList'
 import { EditeursList } from './components/EditeursList'
+import { GUEST_ROLE } from './constants'
 
 type Tab = 'livres' | 'auteurs' | 'editeurs'
 
-function App() {
+function AppContent() {
   const [session, setSession] = useState<Session | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
   const [isExporting, setIsExporting] = useState(false)
@@ -31,6 +33,8 @@ function App() {
       unsubscribe()
     }
   }, [])
+
+  const isGuest = session?.user?.app_metadata?.role === GUEST_ROLE
 
   const handleExport = async () => {
     try {
@@ -68,16 +72,25 @@ function App() {
         </div>
         <div className="header-user">
           {session.user.email && (
-            <span className="user-email">{session.user.email}</span>
+            <span className="user-email">
+              {session.user.email}
+              {isGuest && (
+                <span className="guest-badge" title={t('guest.readOnlyTooltip')}>
+                  {t('guest.readOnlyBadge')}
+                </span>
+              )}
+            </span>
           )}
-          <button
-            type="button"
-            className="export-btn"
-            onClick={handleExport}
-            disabled={isExporting}
-          >
-            {isExporting ? t('app.exporting') : t('app.export')}
-          </button>
+          {!isGuest && (
+            <button
+              type="button"
+              className="export-btn"
+              onClick={handleExport}
+              disabled={isExporting}
+            >
+              {isExporting ? t('app.exporting') : t('app.export')}
+            </button>
+          )}
           <button type="button" className="logout-btn" onClick={() => signOut()}>
             {t('app.logout')}
           </button>
@@ -135,6 +148,14 @@ function App() {
         {activeTab === 'editeurs' && <EditeursList />}
       </main>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 

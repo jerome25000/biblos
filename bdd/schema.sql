@@ -104,10 +104,58 @@ ALTER TABLE "livres_livres" ADD CONSTRAINT "illustrateur_id_refs_id_cf9cdc02" FO
 ALTER TABLE "livres_livres" ADD CONSTRAINT "numEditeur_id_refs_id_f064c7b5" FOREIGN KEY ("numEditeur_id") REFERENCES "livres_editeur" ("id");
 ALTER TABLE "livres_livres" ADD CONSTRAINT "typeLivre_id_refs_id_135241ad" FOREIGN KEY ("typeLivre_id") REFERENCES "livres_typelivre" ("id");
 
-CREATE POLICY "No public access" ON "livres_livres" FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "No public access" ON "livres_auteur" FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "No public access" ON "livres_editeur" FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "No public access" ON "livres_genre" FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "No public access" ON "livres_pays" FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "No public access" ON "livres_illustrateur" FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "No public access" ON "livres_typelivre" FOR ALL TO authenticated USING (true) WITH CHECK (true);
+-- Helper function to determine if the current user has the 'guest' role
+CREATE OR REPLACE FUNCTION is_guest() RETURNS boolean
+LANGUAGE sql STABLE AS $$
+  SELECT COALESCE(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'guest';
+$$;
+
+-- Policies allowing SELECT for all authenticated users, but blocking modifications (INSERT/UPDATE/DELETE) for guests
+-- livres_livres (books table)
+DROP POLICY IF EXISTS "No public access" ON "livres_livres";
+CREATE POLICY "Allow SELECT for all authenticated" ON "livres_livres" FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Block INSERT for guests" ON "livres_livres" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
+CREATE POLICY "Block UPDATE for guests" ON "livres_livres" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
+CREATE POLICY "Block DELETE for guests" ON "livres_livres" FOR DELETE TO authenticated USING (NOT is_guest());
+
+-- livres_auteur (authors table)
+DROP POLICY IF EXISTS "No public access" ON "livres_auteur";
+CREATE POLICY "Allow SELECT for all authenticated" ON "livres_auteur" FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Block INSERT for guests" ON "livres_auteur" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
+CREATE POLICY "Block UPDATE for guests" ON "livres_auteur" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
+CREATE POLICY "Block DELETE for guests" ON "livres_auteur" FOR DELETE TO authenticated USING (NOT is_guest());
+
+-- livres_editeur (publishers table)
+DROP POLICY IF EXISTS "No public access" ON "livres_editeur";
+CREATE POLICY "Allow SELECT for all authenticated" ON "livres_editeur" FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Block INSERT for guests" ON "livres_editeur" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
+CREATE POLICY "Block UPDATE for guests" ON "livres_editeur" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
+CREATE POLICY "Block DELETE for guests" ON "livres_editeur" FOR DELETE TO authenticated USING (NOT is_guest());
+
+-- livres_genre (genres table)
+DROP POLICY IF EXISTS "No public access" ON "livres_genre";
+CREATE POLICY "Allow SELECT for all authenticated" ON "livres_genre" FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Block INSERT for guests" ON "livres_genre" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
+CREATE POLICY "Block UPDATE for guests" ON "livres_genre" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
+CREATE POLICY "Block DELETE for guests" ON "livres_genre" FOR DELETE TO authenticated USING (NOT is_guest());
+
+-- livres_pays (countries table)
+DROP POLICY IF EXISTS "No public access" ON "livres_pays";
+CREATE POLICY "Allow SELECT for all authenticated" ON "livres_pays" FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Block INSERT for guests" ON "livres_pays" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
+CREATE POLICY "Block UPDATE for guests" ON "livres_pays" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
+CREATE POLICY "Block DELETE for guests" ON "livres_pays" FOR DELETE TO authenticated USING (NOT is_guest());
+
+-- livres_illustrateur (illustrators table)
+DROP POLICY IF EXISTS "No public access" ON "livres_illustrateur";
+CREATE POLICY "Allow SELECT for all authenticated" ON "livres_illustrateur" FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Block INSERT for guests" ON "livres_illustrateur" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
+CREATE POLICY "Block UPDATE for guests" ON "livres_illustrateur" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
+CREATE POLICY "Block DELETE for guests" ON "livres_illustrateur" FOR DELETE TO authenticated USING (NOT is_guest());
+
+-- livres_typelivre (book types table)
+DROP POLICY IF EXISTS "No public access" ON "livres_typelivre";
+CREATE POLICY "Allow SELECT for all authenticated" ON "livres_typelivre" FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Block INSERT for guests" ON "livres_typelivre" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
+CREATE POLICY "Block UPDATE for guests" ON "livres_typelivre" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
+CREATE POLICY "Block DELETE for guests" ON "livres_typelivre" FOR DELETE TO authenticated USING (NOT is_guest());

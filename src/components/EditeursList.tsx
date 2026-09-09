@@ -3,6 +3,7 @@ import { fetchEditeursPage, EDITEURS_PAGE_SIZE } from '../services/editeursServi
 import type { EditeursFilter } from '../services/editeursService'
 import type { Editeur } from '../types/database'
 import { t } from '../services/i18nService'
+import { useAuth } from '../contexts/AuthContext'
 import { Pagination } from './Pagination'
 import { EditeurFormModal } from './EditeurFormModal'
 import { EditeurSearchModal } from './EditeurSearchModal'
@@ -14,6 +15,7 @@ import IconEdit from '../assets/icons/edit.svg?react'
 import IconTrash from '../assets/icons/trash.svg?react'
 
 export function EditeursList() {
+  const { isGuest } = useAuth()
   const [page, setPage] = useState(1)
   const [editeurs, setEditeurs] = useState<Editeur[]>([])
   const [count, setCount] = useState(0)
@@ -127,10 +129,16 @@ export function EditeursList() {
             <IconSearch width={16} height={16} aria-hidden="true" />
             {t('editeurs.search.button')}
           </button>
-          <button type="button" className="btn-primary" onClick={openCreateModal}>
-            <IconPlus width={16} height={16} aria-hidden="true" />
-            {t('editeurs.add')}
-          </button>
+          {!isGuest && (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={openCreateModal}
+            >
+              <IconPlus width={16} height={16} aria-hidden="true" />
+              {t('editeurs.add')}
+            </button>
+          )}
         </div>
       </div>
       {loading && (
@@ -166,6 +174,8 @@ export function EditeursList() {
                       className="icon-btn"
                       aria-label={t('editeurs.edit')}
                       onClick={() => openEditModal(editeur)}
+                      disabled={isGuest}
+                      title={isGuest ? t('guest.readOnlyTooltip') : ''}
                     >
                       <IconEdit width={16} height={16} aria-hidden="true" />
                     </button>
@@ -174,6 +184,8 @@ export function EditeursList() {
                       className="icon-btn"
                       aria-label={t('editeurs.delete')}
                       onClick={() => openDeleteModal(editeur)}
+                      disabled={isGuest}
+                      title={isGuest ? t('guest.readOnlyTooltip') : ''}
                     >
                       <IconTrash width={16} height={16} aria-hidden="true" />
                     </button>

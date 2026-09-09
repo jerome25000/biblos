@@ -160,6 +160,8 @@ const translations = {
     'editeurForm.cancel': 'Annuler',
     'editeurForm.saving': 'Enregistrement...',
     'editeurForm.error': "Erreur lors de l'enregistrement de l'éditeur",
+    'guest.readOnlyBadge': 'Lecture seule',
+    'guest.readOnlyTooltip': 'Action non disponible en mode invité',
   },
   en: {
     'login.title': 'Login',
@@ -320,6 +322,8 @@ const translations = {
     'editeurForm.cancel': 'Cancel',
     'editeurForm.saving': 'Saving...',
     'editeurForm.error': 'Error saving the publisher',
+    'guest.readOnlyBadge': 'Read-only',
+    'guest.readOnlyTooltip': 'Action unavailable in guest mode',
   },
 } as const satisfies Record<Locale, Record<string, string>>
 

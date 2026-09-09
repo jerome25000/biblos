@@ -19,6 +19,15 @@ vi.mock('../services/referentielsService', () => ({
   fetchAuteurById: vi.fn().mockResolvedValue(null),
 }))
 
+vi.mock('../contexts/AuthContext', () => {
+  const React = require('react')
+  const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
+  return {
+    useAuth: mockUseAuth,
+    AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  }
+})
+
 const { AuteursList } = await import('../components/AuteursList')
 
 function makeAuteur(overrides: Partial<Auteur> = {}): Auteur {

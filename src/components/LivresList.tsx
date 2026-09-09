@@ -4,6 +4,7 @@ import type { Livre, Auteur, Editeur } from '../types/database'
 import type { LivresFilter } from '../services/livresService'
 import { t } from '../services/i18nService'
 import { formatDate, getDefaultViewMode } from '../services/utilities'
+import { useAuth } from '../contexts/AuthContext'
 import { Pagination } from './Pagination'
 import { LivreFormModal } from './LivreFormModal'
 import { LivreSearchModal } from './LivreSearchModal'
@@ -22,6 +23,7 @@ const VIEW_MODE_CARDS = 'cards'
 type ViewMode = typeof VIEW_MODE_TABLE | typeof VIEW_MODE_CARDS
 
 export function LivresList() {
+  const { isGuest } = useAuth()
   const [page, setPage] = useState(1)
   const [livres, setLivres] = useState<Livre[]>([])
   const [count, setCount] = useState(0)
@@ -156,14 +158,16 @@ export function LivresList() {
             <IconSearch width={16} height={16} aria-hidden="true" />
             {t('livres.search.button')}
           </button>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={openCreateModal}
-          >
-            <IconPlus width={16} height={16} aria-hidden="true" />
-            {t('livres.add')}
-          </button>
+          {!isGuest && (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={openCreateModal}
+            >
+              <IconPlus width={16} height={16} aria-hidden="true" />
+              {t('livres.add')}
+            </button>
+          )}
           <button
             type="button"
             className="icon-btn"
@@ -231,6 +235,8 @@ export function LivresList() {
                           className="icon-btn"
                           aria-label={t('livres.edit')}
                           onClick={() => openEditModal(livre)}
+                          disabled={isGuest}
+                          title={isGuest ? t('guest.readOnlyTooltip') : ''}
                         >
                           <IconEdit width={16} height={16} aria-hidden="true" />
                         </button>

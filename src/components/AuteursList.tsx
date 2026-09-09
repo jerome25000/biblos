@@ -3,6 +3,7 @@ import { fetchAuteursPage, AUTEURS_PAGE_SIZE, countLivresByAuteurs } from '../se
 import type { AuteursFilter } from '../services/auteursService'
 import type { Auteur, Pays } from '../types/database'
 import { t } from '../services/i18nService'
+import { useAuth } from '../contexts/AuthContext'
 import { Pagination } from './Pagination'
 import { AuteurFormModal } from './AuteurFormModal'
 import { AuteurSearchModal } from './AuteurSearchModal'
@@ -14,6 +15,7 @@ import IconEdit from '../assets/icons/edit.svg?react'
 import IconTrash from '../assets/icons/trash.svg?react'
 
 export function AuteursList() {
+  const { isGuest } = useAuth()
   const [page, setPage] = useState(1)
   const [auteurs, setAuteurs] = useState<Auteur[]>([])
   const [count, setCount] = useState(0)
@@ -160,10 +162,16 @@ export function AuteursList() {
             <IconSearch width={16} height={16} aria-hidden="true" />
             {t('auteurs.search.button')}
           </button>
-          <button type="button" className="btn-primary" onClick={openCreateModal}>
-            <IconPlus width={16} height={16} aria-hidden="true" />
-            {t('auteurs.add')}
-          </button>
+          {!isGuest && (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={openCreateModal}
+            >
+              <IconPlus width={16} height={16} aria-hidden="true" />
+              {t('auteurs.add')}
+            </button>
+          )}
         </div>
       </div>
       {loading && (
@@ -203,6 +211,8 @@ export function AuteursList() {
                       className="icon-btn"
                       aria-label={t('auteurs.edit')}
                       onClick={() => openEditModal(auteur)}
+                      disabled={isGuest}
+                      title={isGuest ? t('guest.readOnlyTooltip') : ''}
                     >
                       <IconEdit width={16} height={16} aria-hidden="true" />
                     </button>
@@ -211,6 +221,8 @@ export function AuteursList() {
                       className="icon-btn"
                       aria-label={t('auteurs.delete')}
                       onClick={() => openDeleteModal(auteur)}
+                      disabled={isGuest}
+                      title={isGuest ? t('guest.readOnlyTooltip') : ''}
                     >
                       <IconTrash width={16} height={16} aria-hidden="true" />
                     </button>

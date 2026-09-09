@@ -31,7 +31,7 @@
     --card-border: rgba(255, 255, 255, 0.08);
     --text-primary: #f7fafc;
     --text-secondary: #a0aec0;
-    --input-bg: #2d3748;
+    --input-bg: black;
     --input-border: #4a5568;
     --button-hover: #9f7aea;
     --error-bg: #822727;
@@ -336,6 +336,18 @@ button:disabled {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guest-badge {
+  background: var(--accent-bg);
+  color: var(--accent-color);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .export-btn {
@@ -811,7 +823,7 @@ tbody tr:hover {
 }
 
 .book-card-image-wrapper:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -852,7 +864,7 @@ tbody tr:hover {
 }
 
 .book-card-title {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -883,7 +895,7 @@ tbody tr:hover {
 }
 
 .book-card-auteur {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   margin: 0;
   font-weight: 500;
@@ -932,11 +944,11 @@ tbody tr:hover {
 
 .tooltip-bubble {
   background: var(--card-bg-solid);
-  border: 1px solid var(--card-border);
+  border: 2px solid var(--card-border);
   color: var(--text-primary);
   padding: 16px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 20px;
+  font-size: 16px;
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
