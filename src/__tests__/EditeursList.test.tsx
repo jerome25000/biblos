@@ -18,11 +18,10 @@ vi.mock('../services/referentielsService', () => ({
 }))
 
 vi.mock('../contexts/AuthContext', () => {
-  const React = require('react')
   const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
   return {
     useAuth: mockUseAuth,
-    AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+    AuthProvider: ({ children }: { children: unknown }) => children,
   }
 })
 

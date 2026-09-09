@@ -4,17 +4,12 @@ import { BookCard } from '../components/BookCard'
 import type { Livre, Auteur } from '../types/database'
 
 vi.mock('../contexts/AuthContext', () => {
-  const React = require('react')
   const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
   return {
     useAuth: mockUseAuth,
-    AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+    AuthProvider: ({ children }: { children: unknown }) => children,
   }
 })
-
-const mockUseAuth = vi.mocked(
-  (async () => (await import('../contexts/AuthContext')).useAuth)().then(m => m),
-)
 
 describe('BookCard', () => {
   beforeEach(() => {
