@@ -194,7 +194,9 @@ export function AuteursList() {
           <table>
             <thead>
               <tr>
-                <th aria-hidden="true"></th>
+                { !isGuest && (
+                  <th aria-hidden="true"></th>
+                )}
                 <th>{t('auteurs.column.nom')}</th>
                 <th>{t('auteurs.column.prenom')}</th>
                 <th>{t('auteurs.column.anneeNaissance')}</th>
@@ -205,28 +207,27 @@ export function AuteursList() {
             <tbody>
               {auteurs.map((auteur) => (
                 <tr key={auteur.id}>
-                  <td>
+                  { !isGuest && (
+                  <td>                  
                     <button
                       type="button"
                       className="icon-btn"
                       aria-label={t('auteurs.edit')}
-                      onClick={() => openEditModal(auteur)}
-                      disabled={isGuest}
+                      onClick={() => openEditModal(auteur)}                      
                       title={isGuest ? t('guest.readOnlyTooltip') : ''}
                     >
                       <IconEdit width={16} height={16} aria-hidden="true" />
-                    </button>
+                    </button>                    
                     <button
                       type="button"
                       className="icon-btn"
                       aria-label={t('auteurs.delete')}
-                      onClick={() => openDeleteModal(auteur)}
-                      disabled={isGuest}
+                      onClick={() => openDeleteModal(auteur)}                      
                       title={isGuest ? t('guest.readOnlyTooltip') : ''}
                     >
                       <IconTrash width={16} height={16} aria-hidden="true" />
                     </button>
-                  </td>
+                  </td>)}
                   <td>{auteur.nom}</td>
                   <td>{auteur.prenom}</td>
                   <td>{auteur.anneeNaissance ?? ''}</td>

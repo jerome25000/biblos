@@ -161,13 +161,16 @@ export function EditeursList() {
           <table>
             <thead>
               <tr>
-                <th aria-hidden="true"></th>
+                {!isGuest && (
+                  <th aria-hidden="true"></th>
+                )}
                 <th>{t('editeurs.column.nom')}</th>
               </tr>
             </thead>
             <tbody>
               {editeurs.map((editeur) => (
                 <tr key={editeur.id}>
+                  {!isGuest && (
                   <td>
                     <button
                       type="button"
@@ -189,7 +192,7 @@ export function EditeursList() {
                     >
                       <IconTrash width={16} height={16} aria-hidden="true" />
                     </button>
-                  </td>
+                  </td>)}
                   <td>{editeur.nom}</td>
                 </tr>
               ))}

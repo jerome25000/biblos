@@ -213,8 +213,10 @@ export function LivresList() {
             <div className="table-scroll">
             <table>
               <thead>
-                <tr>
-                  <th aria-hidden="true"></th>
+                <tr> 
+                  { !isGuest && (
+                    <th aria-hidden="true"></th>
+                  )}
                   <th>{t('livres.column.titre')}</th>
                   <th>{t('livres.column.auteur')}</th>
                   <th className="col-editeur">{t('livres.column.editeur')}</th>
@@ -229,18 +231,19 @@ export function LivresList() {
                   const editeur = editeurs.get(livre.numEditeur_id)
                   return (
                     <tr key={livre.id}>
+                      {!isGuest && (
                       <td>
-                        <button
-                          type="button"
-                          className="icon-btn"
-                          aria-label={t('livres.edit')}
-                          onClick={() => openEditModal(livre)}
-                          disabled={isGuest}
-                          title={isGuest ? t('guest.readOnlyTooltip') : ''}
-                        >
-                          <IconEdit width={16} height={16} aria-hidden="true" />
-                        </button>
+                        
+                          <button
+                            type="button"
+                            className="icon-btn"
+                            aria-label={t('livres.edit')}
+                            onClick={() => openEditModal(livre)}
+                          >
+                            <IconEdit width={16} height={16} aria-hidden="true" />
+                          </button>                        
                       </td>
+                      )}
                       <td>{livre.titre}</td>
                       <td>{auteur ? `${auteur.prenom} ${auteur.nom}` : ''}</td>
                       <td className="col-editeur">{editeur?.nom ?? ''}</td>
