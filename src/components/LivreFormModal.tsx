@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Modal } from './Modal'
 import { StarRating } from './StarRating'
 import { LivreImageUploader } from './LivreImageUploader'
+import { DateField } from './DateField'
 import { t } from '../services/i18nService'
 import {
   emptyToNull,
@@ -365,43 +366,27 @@ export function LivreFormModal({
               disabled={saving}
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="dateSaisie">{t('livreForm.field.dateSaisie')}</label>
-            <input
-              id="dateSaisie"
-              className="form-input"
-              placeholder={t('livreForm.datePlaceholder')}
-              value={form.dateSaisie}
-              onChange={(e) => updateField('dateSaisie', e.target.value)}
-              disabled={saving}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="dateDebutLecture">
-              {t('livreForm.field.dateDebutLecture')}
-            </label>
-            <input
-              id="dateDebutLecture"
-              className="form-input"
-              placeholder={t('livreForm.datePlaceholder')}
-              value={form.dateDebutLecture}
-              onChange={(e) => updateField('dateDebutLecture', e.target.value)}
-              disabled={saving}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="dateFinLecture">
-              {t('livreForm.field.dateFinLecture')}
-            </label>
-            <input
-              id="dateFinLecture"
-              className="form-input"
-              placeholder={t('livreForm.datePlaceholder')}
-              value={form.dateFinLecture}
-              onChange={(e) => updateField('dateFinLecture', e.target.value)}
-              disabled={saving}
-            />
-          </div>
+          <DateField
+            id="dateSaisie"
+            label={t('livreForm.field.dateSaisie')}
+            value={form.dateSaisie}
+            onChange={(value) => updateField('dateSaisie', value)}
+            disabled={saving}
+          />
+          <DateField
+            id="dateDebutLecture"
+            label={t('livreForm.field.dateDebutLecture')}
+            value={form.dateDebutLecture}
+            onChange={(value) => updateField('dateDebutLecture', value)}
+            disabled={saving}
+          />
+          <DateField
+            id="dateFinLecture"
+            label={t('livreForm.field.dateFinLecture')}
+            value={form.dateFinLecture}
+            onChange={(value) => updateField('dateFinLecture', value)}
+            disabled={saving}
+          />
           <div className="form-group form-group-checkbox">
             <label htmlFor="collection">
               <input

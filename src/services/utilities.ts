@@ -43,6 +43,28 @@ export function todayFrDate(): string {
   return isoToFrDate(new Date().toISOString())
 }
 
+export function frDateToDate(value: string): Date | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const match = FR_DATE_PATTERN.exec(trimmed)
+  if (!match) return null
+  const [, day, month, year] = match
+  const date = new Date(Number(year), Number(month) - 1, Number(day))
+  const isValid =
+    date.getFullYear() === Number(year) &&
+    date.getMonth() === Number(month) - 1 &&
+    date.getDate() === Number(day)
+  return isValid ? date : null
+}
+
+export function dateToFrDate(date: Date | null): string {
+  if (!date) return ''
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 export function emptyToNull(value: string): string | null {
   const trimmed = value.trim()
   return trimmed === '' ? null : trimmed
