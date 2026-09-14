@@ -4,9 +4,11 @@ import type { Livre, Auteur } from '../types/database'
 import { t } from '../services/i18nService'
 import { useAuth } from '../contexts/AuthContext'
 import { Pagination } from './Pagination'
+import { LivreFormModal } from './LivreFormModal'
 import { fetchAuteurs } from '../services/referentielsService'
 import { EMPRUNTS_PAGE_SIZE } from '../constants'
 import IconUndo from '../assets/icons/undo.svg?react'
+import IconEdit from '../assets/icons/edit.svg?react'
 
 export function EmpruntsList() {
   const { isGuest } = useAuth()
@@ -17,6 +19,8 @@ export function EmpruntsList() {
   const [error, setError] = useState(false)
   const [auteurs, setAuteurs] = useState<Map<number, Auteur>>(new Map())
   const [returning, setReturning] = useState<Set<number>>(new Set())
+  const [editingLivre, setEditingLivre] = useState<Livre | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   const loadEmprunts = useCallback(() => {
     let cancelled = false
@@ -52,6 +56,19 @@ export function EmpruntsList() {
         setAuteurs(new Map())
       })
   }, [])
+
+  function openEditModal(livre: Livre) {
+    setEditingLivre(livre)
+    setModalOpen(true)
+  }
+
+  function closeModal() {
+    setModalOpen(false)
+  }
+
+  function handleSave() {
+    loadEmprunts()
+  }
 
   async function handleReturn(libreId: number) {
     setReturning((prev) => new Set(prev).add(libreId))
@@ -100,6 +117,7 @@ export function EmpruntsList() {
             <table>
               <thead>
                 <tr>
+                  <th></th>
                   <th>{t('emprunts.column.titre')}</th>
                   <th>{t('emprunts.column.auteur')}</th>
                   <th>{t('emprunts.column.emprunteur')}</th>
@@ -111,6 +129,16 @@ export function EmpruntsList() {
                   const auteur = livre.auteur_id ? auteurs.get(livre.auteur_id) : null
                   return (
                     <tr key={livre.id}>
+                      <td>
+                        <button
+                          type="button"
+                          className="icon-btn"
+                          aria-label={t('livres.edit')}
+                          onClick={() => openEditModal(livre)}
+                        >
+                          <IconEdit width={16} height={16} aria-hidden="true" />
+                        </button>
+                      </td>
                       <td>{livre.titre}</td>
                       <td>{auteur ? `${auteur.prenom} ${auteur.nom}` : ''}</td>
                       <td>{livre.emprunteur}</td>
@@ -140,6 +168,12 @@ export function EmpruntsList() {
           />
         </>
       )}
+      <LivreFormModal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        onSaved={handleSave}
+        livre={editingLivre}
+      />
     </section>
   )
 }
