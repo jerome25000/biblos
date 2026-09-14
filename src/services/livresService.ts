@@ -23,11 +23,7 @@ export async function fetchLivres(
   let query = supabase
     .from('livres_livres')
     .select('*', { count: 'exact' })
-    .order('dateDebutLecture', { ascending: false })
-
-  if (!filter) {
-    query = query.not('dateDebutLecture', 'is', null)
-  }
+    .order('dateDebutLecture', { ascending: false, nullsFirst: false })
 
   if (filter) {
     if (filter.type === 'titre') {

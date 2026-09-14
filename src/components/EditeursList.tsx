@@ -106,7 +106,10 @@ export function EditeursList() {
     <section className="books-workspace">
       <div className="books-workspace-header">
         <div className="books-workspace-title">
-          <h1>{t('editeurs.title')}</h1>
+          <div className="books-workspace-title-row">
+            <h1>{t('editeurs.title')}</h1>
+            <span className="count-chip">{t('editeurs.count', { count })}</span>
+          </div>
           {activeFilter && (
             <div className="active-filter">
               <span>{t('editeurs.search.activeFilter', { value: getFilterLabel() })}</span>
@@ -120,7 +123,7 @@ export function EditeursList() {
             </div>
           )}
         </div>
-        <div className="books-workspace-actions">
+        <div className="workspace-actions">
           <button
             type="button"
             className="btn-secondary"

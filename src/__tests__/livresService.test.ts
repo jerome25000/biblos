@@ -36,15 +36,16 @@ describe('fetchLivres', () => {
     fromMock.mockReturnValue({ select: selectMock })
   })
 
-  it('queries livres_livres ordered by dateDebutLecture desc, excluding unread books, with the right range', async () => {
+  it('queries livres_livres ordered by dateDebutLecture desc, with the right range', async () => {
     await fetchLivres(2)
 
     expect(fromMock).toHaveBeenCalledWith('livres_livres')
     expect(selectMock).toHaveBeenCalledWith('*', { count: 'exact' })
     expect(orderMock).toHaveBeenCalledWith('dateDebutLecture', {
       ascending: false,
+      nullsFirst: false,
     })
-    expect(notMock).toHaveBeenCalledWith('dateDebutLecture', 'is', null)
+    expect(notMock).not.toHaveBeenCalled()
     expect(rangeMock).toHaveBeenCalledWith(PAGE_SIZE, PAGE_SIZE * 2 - 1)
   })
 

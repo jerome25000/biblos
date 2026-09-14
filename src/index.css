@@ -15,6 +15,8 @@
   --error-text: #e53e3e;
   --success-bg: #f0fff4;
   --success-text: #38a169;
+  --chip-bg: #fee2e2;
+  --chip-text: #dc2626;
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   color-scheme: light dark;
@@ -38,6 +40,8 @@
     --error-text: #fed7d7;
     --success-bg: #22543d;
     --success-text: #c6f6d5;
+    --chip-bg: #7f1d1d;
+    --chip-text: #fca5a5;
     --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
     --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   }
@@ -672,7 +676,22 @@ tbody tr:hover {
   gap: 8px;
 }
 
-.books-workspace-actions {
+.books-workspace-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.count-chip {
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.workspace-actions {
   display: flex;
   gap: 8px;
 }

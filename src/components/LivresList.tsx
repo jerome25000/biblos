@@ -135,7 +135,10 @@ export function LivresList() {
     <section className="books-workspace">
       <div className="books-workspace-header">
         <div className="books-workspace-title">
-          <h1>{t('livres.title')}</h1>
+          <div className="books-workspace-title-row">
+            <h1>{t('livres.title')}</h1>
+            <span className="count-chip">{t('livres.count', { count })}</span>
+          </div>
           {activeFilter && (
             <div className="active-filter">
               <span>{t('livres.search.activeFilter', { value: getFilterLabel() })}</span>
@@ -149,7 +152,7 @@ export function LivresList() {
             </div>
           )}
         </div>
-        <div className="books-workspace-actions">
+        <div className="workspace-actions">
           <button
             type="button"
             className="btn-secondary"

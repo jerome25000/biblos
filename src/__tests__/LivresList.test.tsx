@@ -176,4 +176,31 @@ describe('LivresList', () => {
 
     expect(await screen.findByLabelText('Modifier le livre')).toBeInTheDocument()
   })
+
+  it('displays the book count chip with the correct count', async () => {
+    fetchLivresMock.mockResolvedValue({
+      livres: [makeLivre(), makeLivre({ titre: 'Another Book' })],
+      count: 2,
+    })
+
+    render(<LivresList />)
+
+    expect(await screen.findByText('2 livre(s)')).toBeInTheDocument()
+  })
+
+  it('updates the book count when a filter is applied', async () => {
+    fetchLivresMock
+      .mockResolvedValueOnce({
+        livres: [makeLivre(), makeLivre({ titre: 'Another Book' })],
+        count: 2,
+      })
+      .mockResolvedValueOnce({
+        livres: [makeLivre()],
+        count: 1,
+      })
+
+    render(<LivresList />)
+
+    expect(await screen.findByText('2 livre(s)')).toBeInTheDocument()
+  })
 })
