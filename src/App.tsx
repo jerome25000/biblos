@@ -8,10 +8,18 @@ import { Login } from './components/Login'
 import { LivresList } from './components/LivresList'
 import { AuteursList } from './components/AuteursList'
 import { EditeursList } from './components/EditeursList'
+import { EmpruntsList } from './components/EmpruntsList'
 import { GUEST_ROLE } from './constants'
 import biblosLogo from './assets/icons/biblos.png'
 
-type Tab = 'livres' | 'auteurs' | 'editeurs'
+type Tab = 'livres' | 'auteurs' | 'editeurs' | 'emprunts'
+
+const TAB_IDS: Record<Tab, string> = {
+  livres: 'tab-livres',
+  auteurs: 'tab-auteurs',
+  editeurs: 'tab-editeurs',
+  emprunts: 'tab-emprunts',
+}
 
 function AppContent() {
   const [session, setSession] = useState<Session | null>(null)
@@ -131,22 +139,30 @@ function AppContent() {
         >
           {t('app.tab.editeurs')}
         </button>
+        {!isGuest && (
+          <button
+            type="button"
+            role="tab"
+            id="tab-emprunts"
+            aria-selected={activeTab === 'emprunts'}
+            aria-controls="tabpanel-content"
+            className={`dashboard-tab${activeTab === 'emprunts' ? ' dashboard-tab-active' : ''}`}
+            onClick={() => setActiveTab('emprunts')}
+          >
+            {t('app.tab.emprunts')}
+          </button>
+        )}
       </nav>
       <main
         className="dashboard-main"
         role="tabpanel"
         id="tabpanel-content"
-        aria-labelledby={
-          activeTab === 'livres'
-            ? 'tab-livres'
-            : activeTab === 'auteurs'
-              ? 'tab-auteurs'
-              : 'tab-editeurs'
-        }
+        aria-labelledby={TAB_IDS[activeTab]}
       >
         {activeTab === 'livres' && <LivresList />}
         {activeTab === 'auteurs' && <AuteursList />}
         {activeTab === 'editeurs' && <EditeursList />}
+        {activeTab === 'emprunts' && !isGuest && <EmpruntsList />}
       </main>
     </div>
   )

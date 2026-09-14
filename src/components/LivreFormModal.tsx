@@ -50,6 +50,7 @@ interface FormState {
   dateFinLecture: string
   note: number | null
   auteurId: string
+  emprunteur: string
   image: string | null
 }
 
@@ -72,6 +73,7 @@ function emptyFormState(): FormState {
     dateFinLecture: '',
     note: null,
     auteurId: '',
+    emprunteur: '',
     image: null,
   }
 }
@@ -95,6 +97,7 @@ function formStateFromLivre(livre: Livre): FormState {
     dateFinLecture: isoToFrDate(livre.dateFinLecture),
     note: livre.note,
     auteurId: livre.auteur_id?.toString() ?? '',
+    emprunteur: livre.emprunteur ?? '',
     image: livre.image ?? null,
   }
 }
@@ -118,6 +121,7 @@ function buildPayload(state: FormState): LivreFormPayload {
     dateFinLecture: frDateToIso(state.dateFinLecture),
     note: state.note,
     auteur_id: state.auteurId ? Number(state.auteurId) : null,
+    emprunteur: emptyToNull(state.emprunteur),
     image: state.image,
   }
 }
@@ -398,6 +402,16 @@ export function LivreFormModal({
               />
               {t('livreForm.field.collection')}
             </label>
+          </div>
+          <div className="form-group">
+            <label htmlFor="emprunteur">{t('livreForm.field.emprunteur')}</label>
+            <input
+              id="emprunteur"
+              className="form-input"
+              value={form.emprunteur}
+              onChange={(e) => updateField('emprunteur', e.target.value)}
+              disabled={saving}
+            />
           </div>
           <div className="form-group">
             <label>{t('livreForm.field.note')}</label>
