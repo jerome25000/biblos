@@ -162,7 +162,7 @@ export function EditeursList() {
             <thead>
               <tr>
                 {!isGuest && (
-                  <th aria-hidden="true"></th>
+                  <th></th>
                 )}
                 <th>{t('editeurs.column.nom')}</th>
               </tr>

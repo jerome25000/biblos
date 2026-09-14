@@ -131,7 +131,7 @@ export function AuteurFormModal({
   const title = auteur ? t('auteurForm.title.edit') : t('auteurForm.title.create')
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal isOpen={isOpen} onClose={onClose} title={title} closableByClickOutside={false} closeOnEscape={false}>
       <form className="livre-form" onSubmit={handleSubmit}>
         {error && (
           <p role="alert" className="error-message">

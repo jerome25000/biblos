@@ -8,11 +8,20 @@ interface ModalProps {
   onClose: () => void
   title: string
   children: ReactNode
+  closableByClickOutside?: boolean
+  closeOnEscape?: boolean
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  closableByClickOutside = true,
+  closeOnEscape = true,
+}: ModalProps) {
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen || !closeOnEscape) return
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') onClose()
@@ -20,18 +29,24 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose])
+  }, [isOpen, closeOnEscape, onClose])
 
   if (!isOpen) return null
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div
+      className="modal-overlay"
+      onClick={(event) => {
+        if (closableByClickOutside && event.currentTarget === event.target) {
+          onClose()
+        }
+      }}
+    >
       <div
         className="modal-panel"
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        onClick={(event) => event.stopPropagation()}
       >
         <div className="modal-header">
           <h2>{title}</h2>

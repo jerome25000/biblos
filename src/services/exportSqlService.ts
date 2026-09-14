@@ -12,7 +12,7 @@ const TABLES = [
 
 function escapeString(value: string | null): string {
   if (value === null) return 'NULL'
-  return `'${value.replace(/'/g, "''")}'`
+  return `'${value.replaceAll("'", "''")}'`
 }
 
 function formatValue(value: unknown): string {

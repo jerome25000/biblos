@@ -71,8 +71,7 @@ export function AuteurSearchModal({
               <li key={item.id}>
                 <button
                   type="button"
-                  className="search-suggestion-item"
-                  aria-selected={selected?.id === item.id}
+                  className={`search-suggestion-item${selected?.id === item.id ? ' selected' : ''}`}
                   onClick={() => setSelected(item)}
                 >
                   {item.nom} {item.prenom}

@@ -147,8 +147,7 @@ export function LivreSearchModal({
               <li key={item.id}>
                 <button
                   type="button"
-                  className="search-suggestion-item"
-                  aria-selected={selected?.id === item.id}
+                  className={`search-suggestion-item${selected?.id === item.id ? ' selected' : ''}`}
                   onClick={() => setSelected(item)}
                 >
                   {'titre' in item

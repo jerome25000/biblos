@@ -210,7 +210,7 @@ export function LivreFormModal({
   const title = livre ? t('livreForm.title.edit') : t('livreForm.title.create')
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal isOpen={isOpen} onClose={onClose} title={title} closableByClickOutside={false} closeOnEscape={false}>
       <form className="livre-form" onSubmit={handleSubmit}>
         {error && (
           <p role="alert" className="error-message">

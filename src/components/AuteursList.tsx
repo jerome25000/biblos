@@ -195,7 +195,7 @@ export function AuteursList() {
             <thead>
               <tr>
                 { !isGuest && (
-                  <th aria-hidden="true"></th>
+                  <th></th>
                 )}
                 <th>{t('auteurs.column.nom')}</th>
                 <th>{t('auteurs.column.prenom')}</th>

@@ -87,7 +87,7 @@ export function EditeurFormModal({
   const title = editeur ? t('editeurForm.title.edit') : t('editeurForm.title.create')
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal isOpen={isOpen} onClose={onClose} title={title} closableByClickOutside={false} closeOnEscape={false}>
       <form className="livre-form" onSubmit={handleSubmit}>
         {error && (
           <p role="alert" className="error-message">

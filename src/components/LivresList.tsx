@@ -213,9 +213,9 @@ export function LivresList() {
             <div className="table-scroll">
             <table>
               <thead>
-                <tr> 
+                <tr>
                   { !isGuest && (
-                    <th aria-hidden="true"></th>
+                    <th></th>
                   )}
                   <th>{t('livres.column.titre')}</th>
                   <th>{t('livres.column.auteur')}</th>
