@@ -6,7 +6,7 @@ vi.mock('../supabaseClient', () => ({
   supabase: { from: fromMock },
 }))
 
-const { fetchEmprunts, returnLivre, EMPRUNTS_PAGE_SIZE } = await import(
+const { fetchEmprunts, returnLivre } = await import(
   '../services/empruntsService'
 )
 

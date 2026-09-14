@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { fetchEmprunts, returnLivre } from '../services/empruntsService'
 import type { Livre, Auteur } from '../types/database'
 import { t } from '../services/i18nService'
-import { useAuth } from '../contexts/AuthContext'
 import { Pagination } from './Pagination'
 import { LivreFormModal } from './LivreFormModal'
 import { fetchAuteurs } from '../services/referentielsService'
@@ -11,7 +10,6 @@ import IconUndo from '../assets/icons/undo.svg?react'
 import IconEdit from '../assets/icons/edit.svg?react'
 
 export function EmpruntsList() {
-  const { isGuest } = useAuth()
   const [page, setPage] = useState(1)
   const [livres, setLivres] = useState<Livre[]>([])
   const [count, setCount] = useState(0)
