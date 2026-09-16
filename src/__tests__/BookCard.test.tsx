@@ -3,11 +3,10 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { BookCard } from '../components/BookCard'
 import type { Livre, Auteur } from '../types/database'
 
-vi.mock('../contexts/AuthContext', () => {
+vi.mock('../hooks/useAuth', () => {
   const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
   return {
     useAuth: mockUseAuth,
-    AuthProvider: ({ children }: { children: unknown }) => children,
   }
 })
 
@@ -100,7 +99,7 @@ describe('BookCard', () => {
   })
 
   it('disables the card button for guest users', async () => {
-    const mockUseAuthModule = await import('../contexts/AuthContext')
+    const mockUseAuthModule = await import('../hooks/useAuth')
     vi.mocked(mockUseAuthModule.useAuth).mockReturnValue({
       session: null,
       isGuest: true,
@@ -112,7 +111,7 @@ describe('BookCard', () => {
   })
 
   it('calls onEdit for non-guest users when clicking the card', async () => {
-    const mockUseAuthModule = await import('../contexts/AuthContext')
+    const mockUseAuthModule = await import('../hooks/useAuth')
     vi.mocked(mockUseAuthModule.useAuth).mockReturnValue({
       session: null,
       isGuest: false,

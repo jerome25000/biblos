@@ -3,7 +3,7 @@ import { fetchAuteursPage, AUTEURS_PAGE_SIZE, countLivresByAuteurs } from '../se
 import type { AuteursFilter } from '../services/auteursService'
 import type { Auteur, Pays } from '../types/database'
 import { t } from '../services/i18nService'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 import { Pagination } from './Pagination'
 import { AuteurFormModal } from './AuteurFormModal'
 import { AuteurSearchModal } from './AuteurSearchModal'

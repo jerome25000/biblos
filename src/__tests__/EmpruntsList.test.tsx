@@ -16,11 +16,10 @@ vi.mock('../services/referentielsService', () => ({
   fetchAuteurs: fetchAuteursMock,
 }))
 
-vi.mock('../contexts/AuthContext', () => {
+vi.mock('../hooks/useAuth', () => {
   const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
   return {
     useAuth: mockUseAuth,
-    AuthProvider: ({ children }: { children: unknown }) => children,
   }
 })
 

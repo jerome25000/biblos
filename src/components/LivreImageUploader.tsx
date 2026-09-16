@@ -182,7 +182,7 @@ export function LivreImageUploader({
         originalSize: 0,
         resizedSize: 0,
       }))
-    } catch (err) {
+    } catch {
       setError(t('livreForm.image.error'))
     } finally {
       setUploading(false)

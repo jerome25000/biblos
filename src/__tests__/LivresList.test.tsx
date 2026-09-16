@@ -18,11 +18,10 @@ vi.mock('../services/referentielsService', () => ({
   fetchTypesLivre: vi.fn().mockResolvedValue([]),
 }))
 
-vi.mock('../contexts/AuthContext', () => {
+vi.mock('../hooks/useAuth', () => {
   const mockUseAuth = vi.fn(() => ({ session: null, isGuest: false, loading: false }))
   return {
     useAuth: mockUseAuth,
-    AuthProvider: ({ children }: { children: unknown }) => children,
   }
 })
 
@@ -30,7 +29,7 @@ const { LivresList } = await import('../components/LivresList')
 
 // Get the mocked useAuth from the mock we setup
 const mockUseAuth = vi.mocked(
-  (await import('../contexts/AuthContext')).useAuth,
+  (await import('../hooks/useAuth')).useAuth,
 )
 
 function makeLivre(overrides: Partial<Livre> = {}): Livre {

@@ -45,9 +45,6 @@ if (!stats.isDirectory()) {
 // Image extensions
 const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
 
-// Directories to skip
-const skipDirs = new Set(['node_modules', '.git', 'src', 'bdd', 'supabase', '.next', 'dist', 'build']);
-
 async function getContentType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   const mimeMap = {
@@ -84,7 +81,7 @@ async function uploadImages() {
       const storagePath = `images/${file}`;
 
       try {
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from('images')
           .upload(storagePath, fileBuffer, {
             contentType,

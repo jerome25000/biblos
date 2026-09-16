@@ -3,7 +3,7 @@ import { fetchEditeursPage, EDITEURS_PAGE_SIZE } from '../services/editeursServi
 import type { EditeursFilter } from '../services/editeursService'
 import type { Editeur } from '../types/database'
 import { t } from '../services/i18nService'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 import { Pagination } from './Pagination'
 import { EditeurFormModal } from './EditeurFormModal'
 import { EditeurSearchModal } from './EditeurSearchModal'
