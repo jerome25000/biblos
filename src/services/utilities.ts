@@ -148,11 +148,11 @@ export interface CountEntry<K> {
   count: number
 }
 
-export function sortCountEntriesByKeyAsc(
+export function sortCountEntriesByKeyDesc(
   counts: Map<number, number>,
 ): CountEntry<number>[] {
   return Array.from(counts.entries())
-    .sort((a, b) => a[0] - b[0])
+    .sort((a, b) => b[0] - a[0])
     .map(([key, count]) => ({ key, count }))
 }
 

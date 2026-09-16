@@ -37,19 +37,19 @@ describe('statsService', () => {
       ]
 
       expect(computeAnneeStats(livres)).toEqual([
-        { annee: 2023, count: 1 },
         { annee: 2024, count: 2 },
+        { annee: 2023, count: 1 },
       ])
     })
 
-    it('sorts years ascending', () => {
+    it('sorts years descending', () => {
       const livres = [
         makeLivreLu({ id: 1, dateFinLecture: '2025-01-01T00:00:00.000Z' }),
         makeLivreLu({ id: 2, dateFinLecture: '2021-01-01T00:00:00.000Z' }),
         makeLivreLu({ id: 3, dateFinLecture: '2023-01-01T00:00:00.000Z' }),
       ]
 
-      expect(computeAnneeStats(livres).map((s) => s.annee)).toEqual([2021, 2023, 2025])
+      expect(computeAnneeStats(livres).map((s) => s.annee)).toEqual([2025, 2023, 2021])
     })
 
     it('ignores books with no dateFinLecture', () => {

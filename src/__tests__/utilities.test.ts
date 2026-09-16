@@ -4,7 +4,7 @@ import {
   dateToFrDate,
   frDateToDate,
   getDefaultViewMode,
-  sortCountEntriesByKeyAsc,
+  sortCountEntriesByKeyDesc,
   topCountEntries,
 } from '../services/utilities'
 import { MOBILE_BREAKPOINT_PX } from '../constants'
@@ -82,21 +82,21 @@ describe('utilities', () => {
     })
   })
 
-  describe('sortCountEntriesByKeyAsc', () => {
+  describe('sortCountEntriesByKeyDesc', () => {
     it('returns an empty array for an empty map', () => {
-      expect(sortCountEntriesByKeyAsc(new Map())).toEqual([])
+      expect(sortCountEntriesByKeyDesc(new Map())).toEqual([])
     })
 
-    it('sorts entries by numeric key ascending', () => {
+    it('sorts entries by numeric key descending', () => {
       const counts = new Map([
         [2024, 3],
         [2021, 1],
         [2023, 2],
       ])
-      expect(sortCountEntriesByKeyAsc(counts)).toEqual([
-        { key: 2021, count: 1 },
-        { key: 2023, count: 2 },
+      expect(sortCountEntriesByKeyDesc(counts)).toEqual([
         { key: 2024, count: 3 },
+        { key: 2023, count: 2 },
+        { key: 2021, count: 1 },
       ])
     })
   })

@@ -1,7 +1,7 @@
 import { supabase } from '../supabaseClient'
 import type { Auteur, Livre } from '../types/database'
 import { STATS_TOP_AUTEURS_LIMIT } from '../constants'
-import { countByKey, sortCountEntriesByKeyAsc, topCountEntries } from './utilities'
+import { countByKey, sortCountEntriesByKeyDesc, topCountEntries } from './utilities'
 
 export type LivreLu = Pick<Livre, 'id' | 'auteur_id' | 'dateFinLecture'>
 
@@ -30,7 +30,7 @@ export function computeAnneeStats(livres: LivreLu[]): AnneeStat[] {
   const counts = countByKey(livres, (livre) =>
     livre.dateFinLecture ? new Date(livre.dateFinLecture).getFullYear() : null,
   )
-  return sortCountEntriesByKeyAsc(counts).map(({ key, count }) => ({
+  return sortCountEntriesByKeyDesc(counts).map(({ key, count }) => ({
     annee: key,
     count,
   }))
