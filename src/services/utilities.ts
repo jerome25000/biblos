@@ -143,6 +143,29 @@ export function countByKey<T, K>(
   return counts
 }
 
+export interface CountEntry<K> {
+  key: K
+  count: number
+}
+
+export function sortCountEntriesByKeyDesc(
+  counts: Map<number, number>,
+): CountEntry<number>[] {
+  return Array.from(counts.entries())
+    .sort((a, b) => b[0] - a[0])
+    .map(([key, count]) => ({ key, count }))
+}
+
+export function topCountEntries<K>(
+  counts: Map<K, number>,
+  limit: number,
+): CountEntry<K>[] {
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([key, count]) => ({ key, count }))
+}
+
 export type ViewMode = 'table' | 'cards'
 
 export function getDefaultViewMode(viewportWidth: number): ViewMode {

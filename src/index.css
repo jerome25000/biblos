@@ -398,6 +398,22 @@ button:disabled {
   gap: 16px;
 }
 
+.stats-panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.stats-panel {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
+
+.stats-panel h2 {
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
 .icon-btn {
   background: transparent;
   border: 2px solid var(--input-border);

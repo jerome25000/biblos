@@ -9,16 +9,18 @@ import { LivresList } from './components/LivresList'
 import { AuteursList } from './components/AuteursList'
 import { EditeursList } from './components/EditeursList'
 import { EmpruntsList } from './components/EmpruntsList'
+import { StatistiquesList } from './components/StatistiquesList'
 import { GUEST_ROLE } from './constants'
 import biblosLogo from './assets/icons/biblos.png'
 
-type Tab = 'livres' | 'auteurs' | 'editeurs' | 'emprunts'
+type Tab = 'livres' | 'auteurs' | 'editeurs' | 'emprunts' | 'statistiques'
 
 const TAB_IDS: Record<Tab, string> = {
   livres: 'tab-livres',
   auteurs: 'tab-auteurs',
   editeurs: 'tab-editeurs',
   emprunts: 'tab-emprunts',
+  statistiques: 'tab-statistiques',
 }
 
 function AppContent() {
@@ -152,6 +154,17 @@ function AppContent() {
             {t('app.tab.emprunts')}
           </button>
         )}
+        <button
+          type="button"
+          role="tab"
+          id="tab-statistiques"
+          aria-selected={activeTab === 'statistiques'}
+          aria-controls="tabpanel-content"
+          className={`dashboard-tab${activeTab === 'statistiques' ? ' dashboard-tab-active' : ''}`}
+          onClick={() => setActiveTab('statistiques')}
+        >
+          {t('app.tab.statistiques')}
+        </button>
       </nav>
       <main
         className="dashboard-main"
@@ -163,6 +176,7 @@ function AppContent() {
         {activeTab === 'auteurs' && <AuteursList />}
         {activeTab === 'editeurs' && <EditeursList />}
         {activeTab === 'emprunts' && !isGuest && <EmpruntsList />}
+        {activeTab === 'statistiques' && <StatistiquesList />}
       </main>
     </div>
   )
