@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import {
+  countByKey,
   dateToFrDate,
   frDateToDate,
   getDefaultViewMode,
+  sortCountEntriesByKeyAsc,
+  topCountEntries,
 } from '../services/utilities'
 import { MOBILE_BREAKPOINT_PX } from '../constants'
 
@@ -55,6 +58,77 @@ describe('utilities', () => {
     it('respects MOBILE_BREAKPOINT_PX constant', () => {
       expect(getDefaultViewMode(MOBILE_BREAKPOINT_PX - 1)).toBe('cards')
       expect(getDefaultViewMode(MOBILE_BREAKPOINT_PX)).toBe('table')
+    })
+  })
+
+  describe('countByKey', () => {
+    it('returns an empty map for an empty array', () => {
+      expect(countByKey([], () => 1)).toEqual(new Map())
+    })
+
+    it('counts items grouped by key', () => {
+      const items = [{ k: 'a' }, { k: 'b' }, { k: 'a' }]
+      expect(countByKey(items, (item) => item.k)).toEqual(
+        new Map([
+          ['a', 2],
+          ['b', 1],
+        ]),
+      )
+    })
+
+    it('ignores items whose key is null', () => {
+      const items = [{ k: 'a' as string | null }, { k: null }]
+      expect(countByKey(items, (item) => item.k)).toEqual(new Map([['a', 1]]))
+    })
+  })
+
+  describe('sortCountEntriesByKeyAsc', () => {
+    it('returns an empty array for an empty map', () => {
+      expect(sortCountEntriesByKeyAsc(new Map())).toEqual([])
+    })
+
+    it('sorts entries by numeric key ascending', () => {
+      const counts = new Map([
+        [2024, 3],
+        [2021, 1],
+        [2023, 2],
+      ])
+      expect(sortCountEntriesByKeyAsc(counts)).toEqual([
+        { key: 2021, count: 1 },
+        { key: 2023, count: 2 },
+        { key: 2024, count: 3 },
+      ])
+    })
+  })
+
+  describe('topCountEntries', () => {
+    it('returns an empty array for an empty map', () => {
+      expect(topCountEntries(new Map(), 5)).toEqual([])
+    })
+
+    it('returns entries sorted by count descending', () => {
+      const counts = new Map([
+        [1, 1],
+        [2, 5],
+        [3, 3],
+      ])
+      expect(topCountEntries(counts, 10)).toEqual([
+        { key: 2, count: 5 },
+        { key: 3, count: 3 },
+        { key: 1, count: 1 },
+      ])
+    })
+
+    it('limits the number of returned entries', () => {
+      const counts = new Map([
+        [1, 1],
+        [2, 2],
+        [3, 3],
+      ])
+      expect(topCountEntries(counts, 2)).toEqual([
+        { key: 3, count: 3 },
+        { key: 2, count: 2 },
+      ])
     })
   })
 })
