@@ -6,9 +6,11 @@
 # Test rules
 - Each feature must have a unit test written (in typescript)
 - Each time, a test fails, fix it
+# check build
+- Each time, run the build command (npm run build) to check that the code is valid
 # no visual test (UI)
 - Do not run yourself the app (unless noticed). Just run unit tests. Fix any problem
 # Hard coded values
 - Do not use hard coded values in the code. Use constants instead (in constants.ts)
-# no git
-- Never use git commands in the terminal (unless noticed)
+# git 
+- Only commit code that has been approved by the reviewer. Do not commit code that has not been approved. Never push the code.
