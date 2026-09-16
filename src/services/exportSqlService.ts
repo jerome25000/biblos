@@ -33,7 +33,8 @@ async function getTableData(tableName: string): Promise<Record<string, unknown>[
   while (hasMore) {
     const { data, error } = await supabase
       .from(tableName)
-      .select('*', { count: 'exact' })
+      .select('*')
+      .order('id', { ascending: true })
       .range(offset, offset + pageSize - 1)
 
     if (error) throw error
