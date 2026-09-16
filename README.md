@@ -1,33 +1,34 @@
-# React + TypeScript + Vite
+# Biblos
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Biblos est une application personnelle de gestion de bibliothèque : elle permet de cataloguer, suivre et consulter l'ensemble de sa collection de livres.
 
-Currently, two official plugins are available:
+## Fonctionnalités
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Gestion des livres
+- Ajout, modification et suppression de livres avec leurs informations : titre (et titre en langue originale), édition, année de première parution, genre, type d'ouvrage, série et numéro dans la série.
+- Association à un auteur, un illustrateur et un éditeur.
+- Suivi de la lecture : dates de début et de fin de lecture, note, commentaires et description.
+- Champs additionnels : image de couverture, dédicace, indication d'appartenance à une collection.
+- Recherche et pagination dans le catalogue.
 
-## React Compiler
+### Auteurs et illustrateurs
+- Fiches dédiées avec nom, prénom, année de naissance et nationalité.
+- Recherche rapide lors de l'ajout ou de la modification d'un livre.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Éditeurs
+- Gestion des maisons d'édition (nom, adresse) associées aux livres.
 
-## Expanding the Oxlint configuration
+### Emprunts
+- Suivi des livres actuellement prêtés à un tiers (nom de l'emprunteur), avec possibilité de modifier un livre directement depuis cette vue.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### Statistiques
+- Nombre de livres lus par année, des plus récentes aux plus anciennes.
+- Classement des 10 auteurs les plus lus.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+### Autres
+- Authentification pour protéger l'accès à la bibliothèque.
+- Interface disponible en français et en anglais.
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
-# biblos
+## Données
+
+La bibliothèque est stockée dans une base de données en ligne (Supabase), ce qui permet d'accéder à sa collection depuis n'importe où.
