@@ -133,6 +133,20 @@ describe('EmpruntsList', () => {
     })
   })
 
+  it('keeps the table and shows an action error when a return fails', async () => {
+    const livre = makeLivre({ id: 1, titre: 'Book to Return' })
+    fetchEmpruntsMock.mockResolvedValue({ livres: [livre], count: 1 })
+    returnLivreMock.mockRejectedValue(new Error('boom'))
+
+    render(<EmpruntsList />)
+    await screen.findByText('Book to Return')
+
+    fireEvent.click(await screen.findByLabelText('Rendu'))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Erreur lors du retour du livre')
+    expect(screen.getByText('Book to Return')).toBeInTheDocument()
+  })
+
   it('renders pagination', async () => {
     fetchEmpruntsMock.mockResolvedValue({ livres: [makeLivre()], count: 1 })
 

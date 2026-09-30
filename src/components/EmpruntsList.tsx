@@ -15,6 +15,7 @@ export function EmpruntsList() {
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [returnError, setReturnError] = useState(false)
   const [auteurs, setAuteurs] = useState<Map<number, Auteur>>(new Map())
   const [returning, setReturning] = useState<Set<number>>(new Set())
   const [editingLivre, setEditingLivre] = useState<Livre | null>(null)
@@ -70,12 +71,13 @@ export function EmpruntsList() {
 
   async function handleReturn(libreId: number) {
     setReturning((prev) => new Set(prev).add(libreId))
+    setReturnError(false)
     try {
       await returnLivre(libreId)
       setLivres((prev) => prev.filter((l) => l.id !== libreId))
       setCount((prev) => Math.max(0, prev - 1))
     } catch {
-      setError(true)
+      setReturnError(true)
     } finally {
       setReturning((prev) => {
         const next = new Set(prev)
@@ -104,6 +106,11 @@ export function EmpruntsList() {
       {error && (
         <p role="alert" className="error-message">
           {t('emprunts.error')}
+        </p>
+      )}
+      {returnError && (
+        <p role="alert" className="error-message">
+          {t('emprunts.return.error')}
         </p>
       )}
       {!loading && !error && livres.length === 0 && (
