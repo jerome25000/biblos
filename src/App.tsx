@@ -55,7 +55,7 @@ function AppContent() {
       downloadSQL(sqlContent, `biblos_export_${timestamp}.sql`)
     } catch (error) {
       console.error('Export failed:', error)
-      alert('Erreur lors de l\'export')
+      alert(t('app.exportError'))
     } finally {
       setIsExporting(false)
     }

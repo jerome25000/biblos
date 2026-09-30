@@ -11,3 +11,5 @@ export const POSTGREST_QUOTE_ESCAPE_PATTERN = /[\\"]/g
 export const POSTGREST_QUOTE = '"'
 
 export const STORAGE_BUCKET_IMAGES = 'images'
+
+export const ERROR_BOUNDARY_LOG_PREFIX = 'Unhandled render error:'
