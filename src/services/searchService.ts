@@ -1,4 +1,8 @@
 import { supabase } from '../supabaseClient'
+import {
+  buildContainsPattern,
+  buildQuotedContainsPattern,
+} from './utilities'
 import type { Auteur, Editeur, Livre } from '../types/database'
 
 const MIN_QUERY_LENGTH = 2
@@ -8,10 +12,11 @@ export async function searchAuteurSuggestions(
 ): Promise<Auteur[]> {
   if (query.trim().length < MIN_QUERY_LENGTH) return []
 
+  const pattern = buildQuotedContainsPattern(query)
   const { data, error } = await supabase
     .from('livres_auteur')
     .select('*')
-    .or(`nom.ilike.%${query}%,prenom.ilike.%${query}%`)
+    .or(`nom.ilike.${pattern},prenom.ilike.${pattern}`)
     .order('nom', { ascending: true })
     .limit(10)
 
@@ -27,7 +32,7 @@ export async function searchEditeurSuggestions(
   const { data, error } = await supabase
     .from('livres_editeur')
     .select('*')
-    .ilike('nom', `%${query}%`)
+    .ilike('nom', buildContainsPattern(query))
     .order('nom', { ascending: true })
     .limit(10)
 
@@ -41,7 +46,7 @@ export async function searchTitreSuggestions(query: string): Promise<Livre[]> {
   const { data, error } = await supabase
     .from('livres_livres')
     .select('*')
-    .ilike('titre', `%${query}%`)
+    .ilike('titre', buildContainsPattern(query))
     .order('titre', { ascending: true })
     .limit(10)
 

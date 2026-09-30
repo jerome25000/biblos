@@ -1,5 +1,11 @@
 import { getLocale } from './i18nService'
-import { MOBILE_BREAKPOINT_PX } from '../constants'
+import {
+  LIKE_ESCAPE_PATTERN,
+  LIKE_WILDCARD,
+  MOBILE_BREAKPOINT_PX,
+  POSTGREST_QUOTE,
+  POSTGREST_QUOTE_ESCAPE_PATTERN,
+} from '../constants'
 
 export function formatDate(value: string | null): string {
   if (!value) return ''
@@ -170,4 +176,27 @@ export type ViewMode = 'table' | 'cards'
 
 export function getDefaultViewMode(viewportWidth: number): ViewMode {
   return viewportWidth < MOBILE_BREAKPOINT_PX ? 'cards' : 'table'
+}
+
+// Escape LIKE/ILIKE special characters so user input is matched literally
+export function escapeLikePattern(value: string): string {
+  return value.replace(LIKE_ESCAPE_PATTERN, '\\$&')
+}
+
+// Double-quote a value for use inside a PostgREST logic-tree filter (.or/.and)
+export function quotePostgrestValue(value: string): string {
+  const escaped = value.replace(POSTGREST_QUOTE_ESCAPE_PATTERN, '\\$&')
+  return `${POSTGREST_QUOTE}${escaped}${POSTGREST_QUOTE}`
+}
+
+// Build a safe "contains" ILIKE pattern, quoted for use inside .or()
+export function buildQuotedContainsPattern(query: string): string {
+  return quotePostgrestValue(
+    `${LIKE_WILDCARD}${escapeLikePattern(query)}${LIKE_WILDCARD}`,
+  )
+}
+
+// Build a safe "contains" ILIKE pattern for direct .ilike() calls
+export function buildContainsPattern(query: string): string {
+  return `${LIKE_WILDCARD}${escapeLikePattern(query)}${LIKE_WILDCARD}`
 }
