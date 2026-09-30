@@ -159,3 +159,14 @@ CREATE POLICY "Allow SELECT for all authenticated" ON "livres_typelivre" FOR SEL
 CREATE POLICY "Block INSERT for guests" ON "livres_typelivre" FOR INSERT TO authenticated WITH CHECK (NOT is_guest());
 CREATE POLICY "Block UPDATE for guests" ON "livres_typelivre" FOR UPDATE TO authenticated USING (NOT is_guest()) WITH CHECK (NOT is_guest());
 CREATE POLICY "Block DELETE for guests" ON "livres_typelivre" FOR DELETE TO authenticated USING (NOT is_guest());
+
+-- Storage policies for the 'images' bucket (storage.objects): same guest model as the tables above.
+-- The bucket name must match STORAGE_BUCKET_IMAGES in src/constants.ts
+DROP POLICY IF EXISTS "Allow SELECT images for all authenticated" ON storage.objects;
+DROP POLICY IF EXISTS "Block INSERT images for guests" ON storage.objects;
+DROP POLICY IF EXISTS "Block UPDATE images for guests" ON storage.objects;
+DROP POLICY IF EXISTS "Block DELETE images for guests" ON storage.objects;
+CREATE POLICY "Allow SELECT images for all authenticated" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'images');
+CREATE POLICY "Block INSERT images for guests" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'images' AND NOT public.is_guest());
+CREATE POLICY "Block UPDATE images for guests" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'images' AND NOT public.is_guest()) WITH CHECK (bucket_id = 'images' AND NOT public.is_guest());
+CREATE POLICY "Block DELETE images for guests" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'images' AND NOT public.is_guest());

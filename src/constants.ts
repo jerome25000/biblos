@@ -9,3 +9,5 @@ export const LIKE_WILDCARD = '%'
 export const LIKE_ESCAPE_PATTERN = /[\\%_]/g
 export const POSTGREST_QUOTE_ESCAPE_PATTERN = /[\\"]/g
 export const POSTGREST_QUOTE = '"'
+
+export const STORAGE_BUCKET_IMAGES = 'images'
