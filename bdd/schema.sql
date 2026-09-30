@@ -106,7 +106,9 @@ ALTER TABLE "livres_livres" ADD CONSTRAINT "typeLivre_id_refs_id_135241ad" FOREI
 
 -- Helper function to determine if the current user has the 'guest' role
 CREATE OR REPLACE FUNCTION is_guest() RETURNS boolean
-LANGUAGE sql STABLE AS $$
+LANGUAGE sql STABLE
+SET search_path = ''
+AS $$
   SELECT COALESCE(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'guest';
 $$;
 

@@ -33,3 +33,12 @@ describe('storage.objects policies in schema.sql', () => {
     expect(findPolicy(operation)).toContain('NOT public.is_guest()')
   })
 })
+
+describe('is_guest function in schema.sql', () => {
+  it('sets an empty search_path', () => {
+    const match = schema.match(/CREATE OR REPLACE FUNCTION is_guest\(\)[\s\S]*?\$\$;/)
+    expect(match).not.toBeNull()
+    expect(match?.[0]).toContain("SET search_path = ''")
+    expect(match?.[0]).toContain('auth.jwt()')
+  })
+})
