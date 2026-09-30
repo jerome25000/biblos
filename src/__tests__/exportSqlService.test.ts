@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockRange = vi.fn().mockResolvedValue({ data: [], error: null })
-const mockSelect = vi.fn().mockReturnValue({ range: mockRange })
+const mockOrder = vi.fn().mockReturnValue({ range: mockRange })
+const mockSelect = vi.fn().mockReturnValue({ order: mockOrder })
 const mockFrom = vi.fn().mockReturnValue({ select: mockSelect })
 
 vi.mock('../supabaseClient', () => ({
@@ -16,7 +17,8 @@ describe('exportSqlService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockRange.mockResolvedValue({ data: [], error: null })
-    mockSelect.mockReturnValue({ range: mockRange })
+    mockOrder.mockReturnValue({ range: mockRange })
+    mockSelect.mockReturnValue({ order: mockOrder })
     mockFrom.mockReturnValue({ select: mockSelect })
   })
 
