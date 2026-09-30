@@ -78,9 +78,21 @@ describe('searchService', () => {
       expect(result).toEqual(mockData)
       expect(fromMock).toHaveBeenCalledWith('livres_auteur')
       expect(selectMock).toHaveBeenCalledWith('*')
-      expect(orMock).toHaveBeenCalledWith('nom.ilike.%ug%,prenom.ilike.%ug%')
+      expect(orMock).toHaveBeenCalledWith(
+        'nom.ilike."%ug%",prenom.ilike."%ug%"',
+      )
       expect(orderMock).toHaveBeenCalledWith('nom', { ascending: true })
       expect(limitMock).toHaveBeenCalledWith(10)
+    })
+
+    it('neutralises PostgREST filter injection in the query', async () => {
+      limitMock.mockResolvedValue({ data: [], error: null })
+
+      await searchAuteurSuggestions('a",id.gt.0,nom.ilike.(x')
+
+      expect(orMock).toHaveBeenCalledWith(
+        'nom.ilike."%a\\",id.gt.0,nom.ilike.(x%",prenom.ilike."%a\\",id.gt.0,nom.ilike.(x%"',
+      )
     })
 
     it('throws when supabase returns an error', async () => {
@@ -95,6 +107,14 @@ describe('searchService', () => {
       const result = await searchEditeurSuggestions('')
       expect(result).toEqual([])
       expect(fromMock).not.toHaveBeenCalled()
+    })
+
+    it('escapes LIKE wildcards in the query', async () => {
+      limitMock.mockResolvedValue({ data: [], error: null })
+
+      await searchEditeurSuggestions('50%_x')
+
+      expect(ilikeMock).toHaveBeenCalledWith('nom', '%50\\%\\_x%')
     })
 
     it('fetches editeur suggestions with ilike filter', async () => {

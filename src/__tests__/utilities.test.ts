@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import {
+  buildContainsPattern,
+  buildQuotedContainsPattern,
   countByKey,
+  escapeLikePattern,
+  quotePostgrestValue,
   dateToFrDate,
   frDateToDate,
   getDefaultViewMode,
@@ -130,5 +134,24 @@ describe('utilities', () => {
         { key: 2, count: 2 },
       ])
     })
+  })
+})
+
+describe('PostgREST escaping helpers', () => {
+  it('escapes LIKE wildcards and backslashes', () => {
+    expect(escapeLikePattern('a%b_c\\d')).toBe('a\\%b\\_c\\\\d')
+  })
+
+  it('quotes values and escapes quotes and backslashes', () => {
+    expect(quotePostgrestValue('a"b\\c')).toBe('"a\\"b\\\\c"')
+  })
+
+  it('keeps reserved characters inside the quoted value', () => {
+    expect(quotePostgrestValue('x,y.z(w)')).toBe('"x,y.z(w)"')
+  })
+
+  it('builds contains patterns', () => {
+    expect(buildContainsPattern('50%')).toBe('%50\\%%')
+    expect(buildQuotedContainsPattern('ab')).toBe('"%ab%"')
   })
 })

@@ -1,6 +1,6 @@
 import { supabase } from '../supabaseClient'
 import type { Livre } from '../types/database'
-import { pageToRange } from './utilities'
+import { escapeLikePattern, pageToRange } from './utilities'
 
 export const PAGE_SIZE = 50
 
@@ -27,7 +27,7 @@ export async function fetchLivres(
 
   if (filter) {
     if (filter.type === 'titre') {
-      query = query.ilike('titre', filter.titre)
+      query = query.ilike('titre', escapeLikePattern(filter.titre))
     } else if (filter.type === 'auteur') {
       query = query.eq('auteur_id', filter.auteurId)
     } else if (filter.type === 'editeur') {
