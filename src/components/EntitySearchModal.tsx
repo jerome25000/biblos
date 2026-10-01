@@ -51,7 +51,7 @@ export function EntitySearchModal<T extends { id: number }, F>({
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [query])
+  }, [query, search])
 
   function handleApply() {
     if (!selected) return
