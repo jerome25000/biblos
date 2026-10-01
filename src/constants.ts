@@ -13,3 +13,6 @@ export const POSTGREST_QUOTE = '"'
 export const STORAGE_BUCKET_IMAGES = 'images'
 
 export const ERROR_BOUNDARY_LOG_PREFIX = 'Unhandled render error:'
+
+// Stored dates are UTC midnight; always read/format them in UTC
+export const DATE_TIME_ZONE = 'UTC'
