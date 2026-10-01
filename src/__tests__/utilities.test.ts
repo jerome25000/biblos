@@ -4,6 +4,7 @@ import {
   buildQuotedContainsPattern,
   countByKey,
   escapeLikePattern,
+  formatBytes,
   quotePostgrestValue,
   dateToFrDate,
   frDateToDate,
@@ -153,5 +154,30 @@ describe('PostgREST escaping helpers', () => {
   it('builds contains patterns', () => {
     expect(buildContainsPattern('50%')).toBe('%50\\%%')
     expect(buildQuotedContainsPattern('ab')).toBe('"%ab%"')
+  })
+})
+
+describe('formatBytes', () => {
+  it('formats zero bytes', () => {
+    expect(formatBytes(0)).toBe('0 bytes')
+  })
+
+  it('formats values below 1 KB in bytes', () => {
+    expect(formatBytes(512)).toBe('512.00 bytes')
+  })
+
+  it('formats kilobytes', () => {
+    expect(formatBytes(1024)).toBe('1.00 KB')
+    expect(formatBytes(1536)).toBe('1.50 KB')
+  })
+
+  it('formats megabytes', () => {
+    expect(formatBytes(1024 * 1024)).toBe('1.00 MB')
+    expect(formatBytes(5 * 1024 * 1024)).toBe('5.00 MB')
+  })
+
+  it('formats gigabytes', () => {
+    expect(formatBytes(1024 ** 3)).toBe('1.00 GB')
+    expect(formatBytes(2.5 * 1024 ** 3)).toBe('2.50 GB')
   })
 })
