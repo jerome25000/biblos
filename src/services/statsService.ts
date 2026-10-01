@@ -1,8 +1,9 @@
 import { supabase } from '../supabaseClient'
 import type { Auteur, Livre } from '../types/database'
-import { STATS_TOP_AUTEURS_LIMIT } from '../constants'
+import { STATS_TOP_AUTEURS_LIMIT, SUPABASE_FETCH_PAGE_SIZE } from '../constants'
 import {
   countByKey,
+  fetchAllPages,
   isoToUtcYear,
   sortCountEntriesByKeyDesc,
   topCountEntries,
@@ -22,13 +23,15 @@ export interface AuteurStat {
 }
 
 export async function fetchLivresLus(): Promise<LivreLu[]> {
-  const { data, error } = await supabase
-    .from('livres_livres')
-    .select('id, auteur_id, dateFinLecture')
-    .not('dateFinLecture', 'is', null)
-
-  if (error) throw error
-  return (data ?? []) as LivreLu[]
+  return fetchAllPages<LivreLu>(async (from, to) => {
+    const { data, error } = await supabase
+      .from('livres_livres')
+      .select('id, auteur_id, dateFinLecture')
+      .not('dateFinLecture', 'is', null)
+      .order('id', { ascending: true })
+      .range(from, to)
+    return { data: data as LivreLu[] | null, error }
+  }, SUPABASE_FETCH_PAGE_SIZE)
 }
 
 export function computeAnneeStats(livres: LivreLu[]): AnneeStat[] {

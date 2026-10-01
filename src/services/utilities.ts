@@ -227,3 +227,23 @@ export function buildQuotedContainsPattern(query: string): string {
 export function buildContainsPattern(query: string): string {
   return `${LIKE_WILDCARD}${escapeLikePattern(query)}${LIKE_WILDCARD}`
 }
+
+export interface PageResult<T> {
+  data: T[] | null
+  error: unknown
+}
+
+// Fetches every row by requesting consecutive ranges until a short page is returned
+export async function fetchAllPages<T>(
+  fetchPage: (from: number, to: number) => Promise<PageResult<T>>,
+  pageSize: number,
+): Promise<T[]> {
+  const rows: T[] = []
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await fetchPage(from, from + pageSize - 1)
+    if (error) throw error
+    const page = data ?? []
+    rows.push(...page)
+    if (page.length < pageSize) return rows
+  }
+}

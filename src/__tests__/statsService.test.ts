@@ -1,7 +1,25 @@
-import { describe, it, expect } from 'vitest'
-import { computeAnneeStats, computeTopAuteurStats } from '../services/statsService'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { SUPABASE_FETCH_PAGE_SIZE } from '../constants'
+import { supabase } from '../supabaseClient'
+import { computeAnneeStats, computeTopAuteurStats, fetchLivresLus } from '../services/statsService'
 import type { LivreLu } from '../services/statsService'
 import type { Auteur } from '../types/database'
+
+vi.mock('../supabaseClient', () => ({ supabase: { from: vi.fn() } }))
+
+function mockPages(results: { data: LivreLu[] | null; error: unknown }[]) {
+  const range = vi.fn()
+  results.forEach((r) => range.mockResolvedValueOnce(r))
+  const order = vi.fn(() => ({ range }))
+  const not = vi.fn(() => ({ order }))
+  const select = vi.fn(() => ({ not }))
+  vi.mocked(supabase.from).mockReturnValue({ select } as never)
+  return { range, order }
+}
+
+function makeRows(count: number, startId = 1): LivreLu[] {
+  return Array.from({ length: count }, (_, i) => makeLivreLu({ id: startId + i }))
+}
 
 function makeLivreLu(overrides: Partial<LivreLu> = {}): LivreLu {
   return {
@@ -107,6 +125,60 @@ describe('statsService', () => {
       expect(computeTopAuteurStats(livres, [])).toEqual([
         { auteurId: 42, nom: '', count: 1 },
       ])
+    })
+  })
+
+  describe('fetchLivresLus', () => {
+    const size = SUPABASE_FETCH_PAGE_SIZE
+
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('fetches several pages ordered by id until a short page', async () => {
+      const { range, order } = mockPages([
+        { data: makeRows(size), error: null },
+        { data: makeRows(5, size + 1), error: null },
+      ])
+
+      const result = await fetchLivresLus()
+
+      expect(result).toHaveLength(size + 5)
+      expect(order).toHaveBeenCalledWith('id', { ascending: true })
+      expect(range).toHaveBeenNthCalledWith(1, 0, size - 1)
+      expect(range).toHaveBeenNthCalledWith(2, size, 2 * size - 1)
+      expect(range).toHaveBeenCalledTimes(2)
+    })
+
+    it('requests an extra empty page when the total is an exact multiple', async () => {
+      const { range } = mockPages([
+        { data: makeRows(size), error: null },
+        { data: [], error: null },
+      ])
+
+      const result = await fetchLivresLus()
+
+      expect(result).toHaveLength(size)
+      expect(range).toHaveBeenCalledTimes(2)
+    })
+
+    it('returns an empty array when there is no data', async () => {
+      mockPages([{ data: [], error: null }])
+      expect(await fetchLivresLus()).toEqual([])
+    })
+
+    it('treats null data as empty', async () => {
+      mockPages([{ data: null, error: null }])
+      expect(await fetchLivresLus()).toEqual([])
+    })
+
+    it('propagates errors, including from a later page', async () => {
+      const error = new Error('boom')
+      mockPages([
+        { data: makeRows(size), error: null },
+        { data: null, error },
+      ])
+      await expect(fetchLivresLus()).rejects.toBe(error)
     })
   })
 })
