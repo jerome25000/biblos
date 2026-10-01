@@ -13,6 +13,7 @@ export const GUEST_ROLE = 'guest'
 export const LIKE_WILDCARD = '%'
 export const LIKE_ESCAPE_PATTERN = /[\\%_]/g
 export const POSTGREST_QUOTE_ESCAPE_PATTERN = /[\\"]/g
+export const TRAILING_SLASHES_PATTERN = /\/+$/
 export const POSTGREST_QUOTE = '"'
 
 export const STORAGE_BUCKET_IMAGES = 'images'
@@ -28,3 +29,24 @@ export const STORED_DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
 export const STORED_DATE_ZONE_PATTERN = /(Z|[+-]\d{2}(:?\d{2})?)$/i
 export const UTC_DESIGNATOR = 'Z'
 export const STORED_DATE_SEPARATOR_REPLACEMENT = '$1T'
+
+// Tab routing
+export type Tab = 'livres' | 'auteurs' | 'editeurs' | 'emprunts' | 'statistiques'
+
+export const TAB_PATHS: Record<Tab, string> = {
+  livres: '/livres',
+  auteurs: '/auteurs',
+  editeurs: '/editeurs',
+  emprunts: '/emprunts',
+  statistiques: '/statistiques',
+}
+
+export const DEFAULT_TAB: Tab = 'livres'
+export const DEFAULT_TAB_PATH = TAB_PATHS[DEFAULT_TAB]
+export const ROOT_PATH = '/'
+export const UNKNOWN_PATH = '*'
+export const TAB_ID_PREFIX = 'tab-'
+export const TAB_PANEL_ID = 'tabpanel-content'
+// Display order of the tabs; `emprunts` is hidden from guests
+export const TAB_ORDER: readonly Tab[] = ['livres', 'auteurs', 'editeurs', 'emprunts', 'statistiques']
+export const GUEST_HIDDEN_TABS: readonly Tab[] = ['emprunts']

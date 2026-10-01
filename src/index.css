@@ -284,6 +284,7 @@ button:disabled {
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
+  text-decoration: none;
   transition: color 0.2s, border-color 0.2s;
 }
 

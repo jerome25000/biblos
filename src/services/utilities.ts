@@ -1,5 +1,8 @@
 import { getLocale } from './i18nService'
 import {
+  TAB_ORDER,
+  TAB_PATHS,
+  type Tab,
   DATE_TIME_ZONE,
   STORED_DATE_SEPARATOR_PATTERN,
   STORED_DATE_TIME_PATTERN,
@@ -11,6 +14,7 @@ import {
   MOBILE_BREAKPOINT_PX,
   POSTGREST_QUOTE,
   POSTGREST_QUOTE_ESCAPE_PATTERN,
+  TRAILING_SLASHES_PATTERN,
 } from '../constants'
 
 // Postgres `timestamp` (without time zone) columns come back with no designator
@@ -246,4 +250,11 @@ export async function fetchAllPages<T>(
     rows.push(...page)
     if (page.length < pageSize) return rows
   }
+}
+
+/** Resolve the tab matching a URL path (null when the path is not a tab route). */
+export function getTabFromPath(pathname: string): Tab | null {
+  const normalized = pathname.length > 1 ? pathname.replace(TRAILING_SLASHES_PATTERN, '') : pathname
+  const match = TAB_ORDER.find((tab) => TAB_PATHS[tab] === normalized)
+  return match ?? null
 }
