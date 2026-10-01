@@ -24,6 +24,16 @@ describe('DateField', () => {
     expect(onChange).toHaveBeenCalledWith('10/06/2024')
   })
 
+  it('calls onChange with an empty string when the date is cleared', () => {
+    const onChange = vi.fn()
+    const { container } = render(
+      <DateField id="dateFinLecture" label="Fin" value="05/03/2024" onChange={onChange} />,
+    )
+    const clear = container.querySelector('.react-datepicker__close-icon') as HTMLElement
+    fireEvent.click(clear)
+    expect(onChange).toHaveBeenCalledWith('')
+  })
+
   it('disables the input when disabled is true', () => {
     render(
       <DateField

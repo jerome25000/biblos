@@ -16,3 +16,10 @@ export const ERROR_BOUNDARY_LOG_PREFIX = 'Unhandled render error:'
 
 // Stored dates are UTC midnight; always read/format them in UTC
 export const DATE_TIME_ZONE = 'UTC'
+
+// Postgres `timestamp` values may use a space separator and carry no time zone
+export const STORED_DATE_SEPARATOR_PATTERN = /^(\d{4}-\d{2}-\d{2})\s+/
+export const STORED_DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+export const STORED_DATE_ZONE_PATTERN = /(Z|[+-]\d{2}(:?\d{2})?)$/i
+export const UTC_DESIGNATOR = 'Z'
+export const STORED_DATE_SEPARATOR_REPLACEMENT = '$1T'

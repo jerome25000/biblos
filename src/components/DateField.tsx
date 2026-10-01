@@ -26,7 +26,7 @@ export function DateField({ id, label, value, onChange, disabled }: DateFieldPro
         dateFormat="dd/MM/yyyy"
         placeholderText={t('livreForm.datePlaceholder')}
         selected={frDateToDate(value)}
-        onChange={(date: Date | null) => date && onChange(dateToFrDate(date))}
+        onChange={(date: Date | null) => onChange(dateToFrDate(date))}
         disabled={disabled}
         isClearable
         showMonthDropdown
