@@ -147,4 +147,23 @@ describe('LivreImageUploader', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Load failed'))
     vi.unstubAllGlobals()
   })
+
+  it('shows no error when the image is valid', async () => {
+    class LoadingImage {
+      width = 100
+      height = 50
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+      set src(_v: string) {
+        setTimeout(() => this.onload?.())
+      }
+    }
+    vi.stubGlobal('Image', LoadingImage)
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])
+    const { container } = render(<LivreImageUploader value={null} onChange={vi.fn()} />)
+    selectFile(container, new File([png], 'a.png', { type: 'image/png' }))
+    await waitFor(() => expect(screen.getByText('Width (px)')).toBeInTheDocument())
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    vi.unstubAllGlobals()
+  })
 })
