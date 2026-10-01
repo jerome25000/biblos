@@ -15,6 +15,21 @@ import {
   POSTGREST_QUOTE,
   POSTGREST_QUOTE_ESCAPE_PATTERN,
   TRAILING_SLASHES_PATTERN,
+  ALLOWED_IMAGE_MIME_TYPES,
+  IMAGE_MIME_EXTENSIONS,
+  IMAGE_ERROR_KEYS,
+  MAX_IMAGE_FILE_SIZE_BYTES,
+  JPEG_SIGNATURE,
+  PNG_SIGNATURE,
+  GIF_SIGNATURE,
+  RIFF_SIGNATURE,
+  WEBP_SIGNATURE,
+  WEBP_FORMAT_OFFSET,
+  MIME_JPEG,
+  MIME_PNG,
+  MIME_GIF,
+  MIME_WEBP,
+  type ImageErrorKey,
 } from '../constants'
 
 // Postgres `timestamp` (without time zone) columns come back with no designator
@@ -257,4 +272,32 @@ export function getTabFromPath(pathname: string): Tab | null {
   const normalized = pathname.length > 1 ? pathname.replace(TRAILING_SLASHES_PATTERN, '') : pathname
   const match = TAB_ORDER.find((tab) => TAB_PATHS[tab] === normalized)
   return match ?? null
+}
+
+function startsWith(bytes: Uint8Array, signature: readonly number[], offset = 0): boolean {
+  return signature.every((value, i) => bytes[offset + i] === value)
+}
+
+// Detects the real image MIME type from the file's leading bytes (null if not an allowed image)
+export function detectImageMimeType(bytes: Uint8Array): string | null {
+  if (startsWith(bytes, JPEG_SIGNATURE)) return MIME_JPEG
+  if (startsWith(bytes, PNG_SIGNATURE)) return MIME_PNG
+  if (startsWith(bytes, GIF_SIGNATURE)) return MIME_GIF
+  if (startsWith(bytes, RIFF_SIGNATURE) && startsWith(bytes, WEBP_SIGNATURE, WEBP_FORMAT_OFFSET)) {
+    return MIME_WEBP
+  }
+  return null
+}
+
+// Cheap synchronous checks (size, declared MIME type when provided; empty type is left to the magic-byte check); returns an i18n key or null
+export function validateImageFile(file: { size: number; type: string }): ImageErrorKey | null {
+  if (file.type && !ALLOWED_IMAGE_MIME_TYPES.includes(file.type)) return IMAGE_ERROR_KEYS.invalidType
+  if (file.size > MAX_IMAGE_FILE_SIZE_BYTES) return IMAGE_ERROR_KEYS.tooLarge
+  return null
+}
+
+export function getImageExtension(mimeType: string): string | null {
+  return Object.prototype.hasOwnProperty.call(IMAGE_MIME_EXTENSIONS, mimeType)
+    ? IMAGE_MIME_EXTENSIONS[mimeType]
+    : null
 }

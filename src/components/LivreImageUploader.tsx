@@ -1,7 +1,21 @@
 import { useRef, useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
 import { t } from '../services/i18nService'
-import { formatBytes } from '../services/utilities'
+import {
+  formatBytes,
+  detectImageMimeType,
+  validateImageFile,
+  getImageExtension,
+} from '../services/utilities'
+import {
+  IMAGE_ERROR_KEYS,
+  IMAGE_EXPORT_QUALITY,
+  IMAGE_FALLBACK_MIME_TYPE,
+  IMAGE_FILE_ACCEPT,
+  IMAGE_MAGIC_BYTES_LENGTH,
+  MAX_IMAGE_FILE_SIZE_BYTES,
+  STORAGE_IMAGES_FOLDER,
+} from '../constants'
 import { uploadImage, getPublicImageUrl } from '../services/storageService'
 import IconImageEmpty from '../assets/icons/image-empty.svg?react'
 
@@ -13,6 +27,7 @@ interface LivreImageUploaderProps {
 
 interface ImageState {
   originalFile: File | null
+  mimeType: string
   originalImage: HTMLImageElement | null
   originalWidth: number
   originalHeight: number
@@ -35,6 +50,7 @@ export function LivreImageUploader({
 
   const [state, setState] = useState<ImageState>({
     originalFile: null,
+    mimeType: IMAGE_FALLBACK_MIME_TYPE,
     originalImage: null,
     originalWidth: 0,
     originalHeight: 0,
@@ -52,20 +68,17 @@ export function LivreImageUploader({
 
   const currentImageUrl = value ? getPublicImageUrl(value) : null
 
-  function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
-    setError(null)
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  function loadImage(file: File, mimeType: string) {
     const reader = new FileReader()
+    reader.onerror = () => setError(t(IMAGE_ERROR_KEYS.readFailed))
     reader.onload = (event) => {
-      const dataUrl = event.target?.result as string
       const img = new Image()
-      img.crossOrigin = 'anonymous'
+      img.onerror = () => setError(t(IMAGE_ERROR_KEYS.loadFailed))
       img.onload = () => {
         setState((prev) => ({
           ...prev,
           originalFile: file,
+          mimeType,
           originalImage: img,
           originalWidth: img.width,
           originalHeight: img.height,
@@ -74,9 +87,40 @@ export function LivreImageUploader({
           originalSize: file.size,
         }))
       }
-      img.src = dataUrl
+      img.src = event.target?.result as string
     }
     reader.readAsDataURL(file)
+  }
+
+  function checkMagicBytes(file: File) {
+    const reader = new FileReader()
+    reader.onerror = () => setError(t(IMAGE_ERROR_KEYS.readFailed))
+    reader.onload = (event) => {
+      const bytes = new Uint8Array(event.target?.result as ArrayBuffer)
+      const mimeType = detectImageMimeType(bytes)
+      if (!mimeType) {
+        setError(t(IMAGE_ERROR_KEYS.invalidType))
+        return
+      }
+      loadImage(file, mimeType)
+    }
+    reader.readAsArrayBuffer(file.slice(0, IMAGE_MAGIC_BYTES_LENGTH))
+  }
+
+  function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
+    setError(null)
+    const input = e.target
+    const file = input.files?.[0]
+    if (!file) return
+
+    const errorKey = validateImageFile(file)
+    if (errorKey) {
+      setError(t(errorKey, { max: formatBytes(MAX_IMAGE_FILE_SIZE_BYTES) }))
+      input.value = ''
+      return
+    }
+    checkMagicBytes(file)
+    input.value = ''
   }
 
   function updateDimension(
@@ -129,7 +173,7 @@ export function LivreImageUploader({
       state.resizedHeight,
     )
 
-    const mimeType = state.originalFile?.type || 'image/jpeg'
+    const mimeType = state.mimeType
 
     canvas.toBlob(
       (blob) => {
@@ -143,13 +187,13 @@ export function LivreImageUploader({
         }
       },
       mimeType,
-      0.9,
+      IMAGE_EXPORT_QUALITY,
     )
   }, [
     state.originalImage,
     state.resizedWidth,
     state.resizedHeight,
-    state.originalFile?.type,
+    state.mimeType,
   ])
 
   async function handleUpload() {
@@ -162,9 +206,12 @@ export function LivreImageUploader({
     setError(null)
 
     try {
-      const ext = state.originalFile.name.split('.').pop() || 'jpg'
-      const filename = `${crypto.randomUUID()}.${ext}`
-      const path = `images/${filename}`
+      const ext = getImageExtension(state.resizedBlob.type)
+      if (!ext) {
+        setError(t(IMAGE_ERROR_KEYS.invalidType))
+        return
+      }
+      const path = `${STORAGE_IMAGES_FOLDER}/${crypto.randomUUID()}.${ext}`
 
       await uploadImage(path, state.resizedBlob)
       onChange(path)
@@ -229,7 +276,7 @@ export function LivreImageUploader({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={IMAGE_FILE_ACCEPT}
             hidden
             onChange={handleFileSelect}
             disabled={disabled || uploading}

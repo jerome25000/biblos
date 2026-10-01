@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import * as storageServiceModule from '../services/storageService'
+import { MAX_IMAGE_FILE_SIZE_BYTES } from '../constants'
 import { LivreImageUploader } from '../components/LivreImageUploader'
 
 vi.mock('../services/storageService')
@@ -17,6 +18,10 @@ vi.mock('../services/i18nService', () => ({
       'livreForm.image.upload': 'Upload',
       'livreForm.image.uploading': 'Uploading...',
       'livreForm.image.error': 'Error uploading image',
+      'livreForm.image.errorTooLarge': 'Too large',
+      'livreForm.image.errorInvalidType': 'Invalid type',
+      'livreForm.image.errorRead': 'Read failed',
+      'livreForm.image.errorLoad': 'Load failed',
       'livreForm.image.alt': `Cover of preview`,
     }
     return translations[key] || key
@@ -90,5 +95,75 @@ describe('LivreImageUploader', () => {
     )
 
     expect(storageServiceModule.getPublicImageUrl).toHaveBeenCalledWith('images/test.jpg')
+  })
+
+  function selectFile(container: HTMLElement, file: File) {
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [file] } })
+  }
+
+  it('shows an error for a disallowed MIME type', () => {
+    const { container } = render(<LivreImageUploader value={null} onChange={vi.fn()} />)
+    selectFile(container, new File(['x'], 'a.svg', { type: 'image/svg+xml' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid type')
+  })
+
+  it('shows an error for an oversized file', () => {
+    const { container } = render(<LivreImageUploader value={null} onChange={vi.fn()} />)
+    const file = new File(['x'], 'a.png', { type: 'image/png' })
+    Object.defineProperty(file, 'size', { value: MAX_IMAGE_FILE_SIZE_BYTES + 1 })
+    selectFile(container, file)
+    expect(screen.getByRole('alert')).toHaveTextContent('Too large')
+  })
+
+  it('shows an error when magic bytes do not match an image', async () => {
+    const { container } = render(<LivreImageUploader value={null} onChange={vi.fn()} />)
+    selectFile(container, new File(['<html>not an image'], 'a.png', { type: 'image/png' }))
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Invalid type'))
+  })
+
+  it('shows an error when the file reader fails', async () => {
+    vi.spyOn(FileReader.prototype, 'readAsArrayBuffer').mockImplementation(function (this: FileReader) {
+      setTimeout(() => this.onerror?.(new ProgressEvent('error') as ProgressEvent<FileReader>))
+    })
+    const { container } = render(<LivreImageUploader value={null} onChange={vi.fn()} />)
+    selectFile(container, new File(['x'], 'a.png', { type: 'image/png' }))
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Read failed'))
+    vi.restoreAllMocks()
+  })
+
+  it('shows an error when the image cannot be decoded', async () => {
+    class FailingImage {
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+      set src(_v: string) {
+        setTimeout(() => this.onerror?.())
+      }
+    }
+    vi.stubGlobal('Image', FailingImage)
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])
+    const { container } = render(<LivreImageUploader value={null} onChange={vi.fn()} />)
+    selectFile(container, new File([png], 'a.png', { type: 'image/png' }))
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Load failed'))
+    vi.unstubAllGlobals()
+  })
+
+  it('shows no error when the image is valid', async () => {
+    class LoadingImage {
+      width = 100
+      height = 50
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+      set src(_v: string) {
+        setTimeout(() => this.onload?.())
+      }
+    }
+    vi.stubGlobal('Image', LoadingImage)
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])
+    const { container } = render(<LivreImageUploader value={null} onChange={vi.fn()} />)
+    selectFile(container, new File([png], 'a.png', { type: 'image/png' }))
+    await waitFor(() => expect(screen.getByText('Width (px)')).toBeInTheDocument())
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    vi.unstubAllGlobals()
   })
 })
