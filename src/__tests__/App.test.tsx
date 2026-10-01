@@ -65,4 +65,14 @@ describe('App', () => {
 
     expect(unsubscribe).toHaveBeenCalled()
   })
+
+  it('opens a single session fetch and a single auth subscription', async () => {
+    getSessionMock.mockResolvedValue(null)
+
+    render(<App />)
+    await screen.findByText('Connexion')
+
+    expect(getSessionMock).toHaveBeenCalledTimes(1)
+    expect(onAuthStateChangeMock).toHaveBeenCalledTimes(1)
+  })
 })

@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import type { Session } from '@supabase/supabase-js'
-import { getSession, onAuthStateChange, signOut } from './services/authService'
+import { useState } from 'react'
+import { signOut } from './services/authService'
 import { t } from './services/i18nService'
 import { exportDatabaseAsSQL, downloadSQL } from './services/exportSqlService'
 import { AuthProvider } from './contexts/AuthContext'
@@ -10,7 +9,7 @@ import { AuteursList } from './components/AuteursList'
 import { EditeursList } from './components/EditeursList'
 import { EmpruntsList } from './components/EmpruntsList'
 import { StatistiquesList } from './components/StatistiquesList'
-import { GUEST_ROLE } from './constants'
+import { useAuth } from './hooks/useAuth'
 import biblosLogo from './assets/icons/biblos.png'
 
 type Tab = 'livres' | 'auteurs' | 'editeurs' | 'emprunts' | 'statistiques'
@@ -24,28 +23,9 @@ const TAB_IDS: Record<Tab, string> = {
 }
 
 function AppContent() {
-  const [session, setSession] = useState<Session | null>(null)
-  const [checkingSession, setCheckingSession] = useState(true)
+  const { session, isGuest, loading } = useAuth()
   const [isExporting, setIsExporting] = useState(false)
   const [activeTab, setActiveTab] = useState<Tab>('livres')
-
-  useEffect(() => {
-    let cancelled = false
-
-    getSession().then((s) => {
-      if (cancelled) return
-      setSession(s)
-      setCheckingSession(false)
-    })
-    const unsubscribe = onAuthStateChange(setSession)
-
-    return () => {
-      cancelled = true
-      unsubscribe()
-    }
-  }, [])
-
-  const isGuest = session?.user?.app_metadata?.role === GUEST_ROLE
 
   const handleExport = async () => {
     try {
@@ -61,7 +41,7 @@ function AppContent() {
     }
   }
 
-  if (checkingSession) {
+  if (loading) {
     return (
       <div className="loading-screen">
         <div className="spinner-large" />
