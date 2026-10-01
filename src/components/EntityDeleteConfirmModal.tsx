@@ -1,28 +1,37 @@
 import { useState } from 'react'
-import type { Auteur } from '../types/database'
-import { deleteAuteur, countLivresByAuteur } from '../services/auteursService'
 import { t } from '../services/i18nService'
 import { Modal } from './Modal'
+import type { EntityI18nPrefix } from './EntitySearchModal'
 
-interface AuteurDeleteConfirmModalProps {
-  isOpen: boolean
-  auteur: Auteur | null
-  onClose: () => void
-  onDeleted: () => void
+export interface EntityDeleteDescriptor<T extends { id: number }> {
+  i18nPrefix: EntityI18nPrefix
+  getLabel: (item: T) => string
+  remove: (id: number) => Promise<void>
+  countLivres: (id: number) => Promise<number>
 }
 
-export function AuteurDeleteConfirmModal({
+interface EntityDeleteConfirmModalProps<T extends { id: number }> {
+  isOpen: boolean
+  entity: T | null
+  onClose: () => void
+  onDeleted: () => void
+  descriptor: EntityDeleteDescriptor<T>
+}
+
+export function EntityDeleteConfirmModal<T extends { id: number }>({
   isOpen,
-  auteur,
+  entity,
   onClose,
   onDeleted,
-}: AuteurDeleteConfirmModalProps) {
+  descriptor,
+}: EntityDeleteConfirmModalProps<T>) {
+  const { i18nPrefix, getLabel, remove, countLivres } = descriptor
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)  
 
-  if (!auteur) return null
+  if (!entity) return null
 
-  const auteurFullName = `${auteur.nom} ${auteur.prenom}`
+  const entityLabel = getLabel(entity)
 
   function resetState() {
     setLoading(false)
@@ -34,13 +43,11 @@ export function AuteurDeleteConfirmModal({
     setError(null)
 
     try {
-      if (!auteur) return null
-
-      const count = await countLivresByAuteur(auteur.id)
+      const count = await countLivres(entity!.id)
 
       if (count > 0) {
         setError(
-          t('auteurs.delete.inUse', {
+          t(`${i18nPrefix}.delete.inUse`, {
             count: count.toString(),
           }),
         )
@@ -48,12 +55,12 @@ export function AuteurDeleteConfirmModal({
         return
       }
 
-      await deleteAuteur(auteur.id)
+      await remove(entity!.id)
       resetState()
       onDeleted()
       onClose()
     } catch {
-      setError(t('auteurs.delete.error'))
+      setError(t(`${i18nPrefix}.delete.error`))
       setLoading(false)
     }
   }
@@ -67,7 +74,7 @@ export function AuteurDeleteConfirmModal({
     <Modal
       isOpen={isOpen}
       onClose={handleCloseModal}
-      title={t('auteurs.delete.confirm.title')}
+      title={t(`${i18nPrefix}.delete.confirm.title`)}
     >
       {error ? (
         <div className="confirm-modal-content">
@@ -81,13 +88,13 @@ export function AuteurDeleteConfirmModal({
               onClick={handleCloseModal}
               disabled={loading}
             >
-              {t('auteurs.delete.cancel')}
+              {t(`${i18nPrefix}.delete.cancel`)}
             </button>
           </div>
         </div>
       ) : (
         <div className="confirm-modal-content">
-          <p>{t('auteurs.delete.confirm.message', { value: auteurFullName })}</p>
+          <p>{t(`${i18nPrefix}.delete.confirm.message`, { value: entityLabel })}</p>
           <div className="confirm-modal-actions">
             <button
               type="button"
@@ -95,7 +102,7 @@ export function AuteurDeleteConfirmModal({
               onClick={handleCloseModal}
               disabled={loading}
             >
-              {t('auteurs.delete.cancel')}
+              {t(`${i18nPrefix}.delete.cancel`)}
             </button>
             <button
               type="button"
@@ -104,7 +111,7 @@ export function AuteurDeleteConfirmModal({
               disabled={loading}
             >
               {loading && <span className="spinner" />}
-              {t('auteurs.delete.confirm.button')}
+              {t(`${i18nPrefix}.delete.confirm.button`)}
             </button>
           </div>
         </div>

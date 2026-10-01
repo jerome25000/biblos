@@ -1,24 +1,33 @@
 import { useEffect, useState } from 'react'
 import { Modal } from './Modal'
 import { t } from '../services/i18nService'
-import { searchEditeurSuggestions } from '../services/searchService'
-import type { Editeur } from '../types/database'
-import type { EditeursFilter } from '../services/editeursService'
 
-interface EditeurSearchModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onApply: (filter: EditeursFilter) => void
+export type EntityI18nPrefix = 'auteurs' | 'editeurs'
+
+export interface EntitySearchDescriptor<T extends { id: number }, F> {
+  i18nPrefix: EntityI18nPrefix
+  search: (query: string) => Promise<T[]>
+  getLabel: (item: T) => string
+  toFilter: (item: T) => F
 }
 
-export function EditeurSearchModal({
+interface EntitySearchModalProps<T extends { id: number }, F> {
+  isOpen: boolean
+  onClose: () => void
+  onApply: (filter: F) => void
+  descriptor: EntitySearchDescriptor<T, F>
+}
+
+export function EntitySearchModal<T extends { id: number }, F>({
   isOpen,
   onClose,
   onApply,
-}: EditeurSearchModalProps) {
+  descriptor,
+}: EntitySearchModalProps<T, F>) {
+  const { i18nPrefix, search, getLabel, toFilter } = descriptor
   const [query, setQuery] = useState('')
-  const [suggestions, setSuggestions] = useState<Editeur[]>([])
-  const [selected, setSelected] = useState<Editeur | null>(null)
+  const [suggestions, setSuggestions] = useState<T[]>([])
+  const [selected, setSelected] = useState<T | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -35,7 +44,7 @@ export function EditeurSearchModal({
 
     const timer = setTimeout(() => {
       setLoading(true)
-      searchEditeurSuggestions(query)
+      search(query)
         .then(setSuggestions)
         .catch(() => setSuggestions([]))
         .finally(() => setLoading(false))
@@ -46,18 +55,18 @@ export function EditeurSearchModal({
 
   function handleApply() {
     if (!selected) return
-    onApply({ type: 'editeur', editeurId: selected.id })
+    onApply(toFilter(selected))
     onClose()
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={t('editeurs.search.title')}>
+    <Modal isOpen={isOpen} onClose={onClose} title={t(`${i18nPrefix}.search.title`)}>
       <div className="search-form">
         <div className="search-input-wrapper">
           <input
             type="text"
             className="form-input"
-            placeholder={t('editeurs.search.placeholder')}
+            placeholder={t(`${i18nPrefix}.search.placeholder`)}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -74,7 +83,7 @@ export function EditeurSearchModal({
                   className={`search-suggestion-item${selected?.id === item.id ? ' selected' : ''}`}
                   onClick={() => setSelected(item)}
                 >
-                  {item.nom}
+                  {getLabel(item)}
                 </button>
               </li>
             ))}
@@ -82,18 +91,18 @@ export function EditeurSearchModal({
         )}
 
         {query.trim().length >= 2 && suggestions.length === 0 && !loading && (
-          <p className="search-no-results">{t('editeurs.search.noResults')}</p>
+          <p className="search-no-results">{t(`${i18nPrefix}.search.noResults`)}</p>
         )}
 
         {selected && (
           <div className="search-selected">
-            {t('editeurs.search.selected')}: <strong>{selected.nom}</strong>
+            {t(`${i18nPrefix}.search.selected`)}: <strong>{getLabel(selected)}</strong>
           </div>
         )}
 
         <div className="modal-actions">
           <button type="button" className="btn-secondary" onClick={onClose}>
-            {t('editeurs.search.cancel')}
+            {t(`${i18nPrefix}.search.cancel`)}
           </button>
           <button
             type="button"
@@ -101,7 +110,7 @@ export function EditeurSearchModal({
             onClick={handleApply}
             disabled={!selected}
           >
-            {t('editeurs.search.apply')}
+            {t(`${i18nPrefix}.search.apply`)}
           </button>
         </div>
       </div>

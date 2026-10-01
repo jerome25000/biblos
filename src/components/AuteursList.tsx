@@ -6,8 +6,9 @@ import { t } from '../services/i18nService'
 import { useAuth } from '../hooks/useAuth'
 import { Pagination } from './Pagination'
 import { AuteurFormModal } from './AuteurFormModal'
-import { AuteurSearchModal } from './AuteurSearchModal'
-import { AuteurDeleteConfirmModal } from './AuteurDeleteConfirmModal'
+import { EntitySearchModal } from './EntitySearchModal'
+import { EntityDeleteConfirmModal } from './EntityDeleteConfirmModal'
+import { auteurSearchDescriptor, auteurDeleteDescriptor } from './entityDescriptors'
 import { fetchAuteurById, fetchPays } from '../services/referentielsService'
 import IconSearch from '../assets/icons/search.svg?react'
 import IconPlus from '../assets/icons/plus.svg?react'
@@ -255,14 +256,16 @@ export function AuteursList() {
         onSaved={loadAuteurs}
         auteur={editingAuteur}
       />
-      <AuteurSearchModal
+      <EntitySearchModal
+        descriptor={auteurSearchDescriptor}
         isOpen={searchModalOpen}
         onClose={() => setSearchModalOpen(false)}
         onApply={handleSearchApply}
       />
-      <AuteurDeleteConfirmModal
+      <EntityDeleteConfirmModal
+        descriptor={auteurDeleteDescriptor}
         isOpen={deleteModalOpen}
-        auteur={deletingAuteur}
+        entity={deletingAuteur}
         onClose={closeDeleteModal}
         onDeleted={loadAuteurs}
       />
