@@ -12,8 +12,11 @@ import {
   getDefaultViewMode,
   sortCountEntriesByKeyDesc,
   topCountEntries,
+  detectImageMimeType,
+  validateImageFile,
+  getImageExtension,
 } from '../services/utilities'
-import { MOBILE_BREAKPOINT_PX } from '../constants'
+import { MOBILE_BREAKPOINT_PX, MAX_IMAGE_FILE_SIZE_BYTES, IMAGE_ERROR_KEYS } from '../constants'
 
 describe('utilities', () => {
   describe('frDateToDate', () => {
@@ -196,5 +199,45 @@ describe('getTabFromPath', () => {
   it('returns null for unknown paths', () => {
     expect(getTabFromPath('/')).toBeNull()
     expect(getTabFromPath('/foo')).toBeNull()
+  })
+})
+
+describe('image validation utilities', () => {
+  const pad = (b: number[]) => new Uint8Array([...b, ...new Array(12).fill(0)])
+
+  it('detects allowed formats from magic bytes', () => {
+    expect(detectImageMimeType(pad([0xff, 0xd8, 0xff, 0xe0]))).toBe('image/jpeg')
+    expect(detectImageMimeType(pad([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe('image/png')
+    expect(detectImageMimeType(pad([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]))).toBe('image/gif')
+    expect(
+      detectImageMimeType(
+        new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]),
+      ),
+    ).toBe('image/webp')
+  })
+
+  it('rejects unknown or spoofed content', () => {
+    expect(detectImageMimeType(pad([0x3c, 0x73, 0x76, 0x67]))).toBeNull()
+    expect(detectImageMimeType(new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x41, 0x56, 0x49, 0x20]))).toBeNull()
+    expect(detectImageMimeType(new Uint8Array())).toBeNull()
+  })
+
+  it('validates declared type and size', () => {
+    expect(validateImageFile({ size: 10, type: 'image/png' })).toBeNull()
+    expect(validateImageFile({ size: 10, type: 'image/svg+xml' })).toBe(IMAGE_ERROR_KEYS.invalidType)
+    expect(validateImageFile({ size: 10, type: '' })).toBeNull()
+    expect(validateImageFile({ size: MAX_IMAGE_FILE_SIZE_BYTES + 1, type: 'image/png' })).toBe(
+      IMAGE_ERROR_KEYS.tooLarge,
+    )
+    expect(validateImageFile({ size: MAX_IMAGE_FILE_SIZE_BYTES, type: 'image/png' })).toBeNull()
+  })
+
+  it('maps MIME types to extensions', () => {
+    expect(getImageExtension('image/jpeg')).toBe('jpg')
+    expect(getImageExtension('image/webp')).toBe('webp')
+    expect(getImageExtension('image/png')).toBe('png')
+    expect(getImageExtension('image/gif')).toBe('gif')
+    expect(getImageExtension('text/html')).toBeNull()
+    expect(getImageExtension('constructor')).toBeNull()
   })
 })

@@ -17,6 +17,39 @@ export const TRAILING_SLASHES_PATTERN = /\/+$/
 export const POSTGREST_QUOTE = '"'
 
 export const STORAGE_BUCKET_IMAGES = 'images'
+export const STORAGE_IMAGES_FOLDER = 'images'
+
+// Image upload validation
+export const MAX_IMAGE_FILE_SIZE_BYTES = 5 * 1024 * 1024
+export const IMAGE_MAGIC_BYTES_LENGTH = 12
+export const MIME_JPEG = 'image/jpeg'
+export const MIME_PNG = 'image/png'
+export const MIME_GIF = 'image/gif'
+export const MIME_WEBP = 'image/webp'
+export const IMAGE_MIME_EXTENSIONS: Readonly<Record<string, string>> = {
+  [MIME_JPEG]: 'jpg',
+  [MIME_PNG]: 'png',
+  [MIME_WEBP]: 'webp',
+  [MIME_GIF]: 'gif',
+}
+// Magic-byte signatures
+export const JPEG_SIGNATURE: readonly number[] = [0xff, 0xd8, 0xff]
+export const PNG_SIGNATURE: readonly number[] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
+export const GIF_SIGNATURE: readonly number[] = [0x47, 0x49, 0x46, 0x38]
+export const RIFF_SIGNATURE: readonly number[] = [0x52, 0x49, 0x46, 0x46]
+export const WEBP_SIGNATURE: readonly number[] = [0x57, 0x45, 0x42, 0x50]
+export const WEBP_FORMAT_OFFSET = 8
+export const ALLOWED_IMAGE_MIME_TYPES: readonly string[] = Object.keys(IMAGE_MIME_EXTENSIONS)
+export const IMAGE_FILE_ACCEPT = ALLOWED_IMAGE_MIME_TYPES.join(',')
+export const IMAGE_FALLBACK_MIME_TYPE = MIME_JPEG
+export const IMAGE_EXPORT_QUALITY = 0.9
+export const IMAGE_ERROR_KEYS = {
+  tooLarge: 'livreForm.image.errorTooLarge',
+  invalidType: 'livreForm.image.errorInvalidType',
+  readFailed: 'livreForm.image.errorRead',
+  loadFailed: 'livreForm.image.errorLoad',
+} as const
+export type ImageErrorKey = (typeof IMAGE_ERROR_KEYS)[keyof typeof IMAGE_ERROR_KEYS]
 
 export const ERROR_BOUNDARY_LOG_PREFIX = 'Unhandled render error:'
 
