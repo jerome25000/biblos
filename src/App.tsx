@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { TabNav } from './components/TabNav'
+import { DEFAULT_TAB_PATH, ROOT_PATH, TAB_ID_PREFIX, TAB_PANEL_ID, TAB_PATHS, UNKNOWN_PATH } from './constants'
+import { getTabFromPath } from './services/utilities'
 import { signOut } from './services/authService'
 import { t } from './services/i18nService'
 import { exportDatabaseAsSQL, downloadSQL } from './services/exportSqlService'
@@ -12,20 +16,26 @@ import { StatistiquesList } from './components/StatistiquesList'
 import { useAuth } from './hooks/useAuth'
 import biblosLogo from './assets/icons/biblos.png'
 
-type Tab = 'livres' | 'auteurs' | 'editeurs' | 'emprunts' | 'statistiques'
-
-const TAB_IDS: Record<Tab, string> = {
-  livres: 'tab-livres',
-  auteurs: 'tab-auteurs',
-  editeurs: 'tab-editeurs',
-  emprunts: 'tab-emprunts',
-  statistiques: 'tab-statistiques',
+function TabRoutes({ isGuest }: { isGuest: boolean }) {
+  const fallback = <Navigate to={DEFAULT_TAB_PATH} replace />
+  return (
+    <Routes>
+      <Route path={ROOT_PATH} element={fallback} />
+      <Route path={TAB_PATHS.livres} element={<LivresList />} />
+      <Route path={TAB_PATHS.auteurs} element={<AuteursList />} />
+      <Route path={TAB_PATHS.editeurs} element={<EditeursList />} />
+      <Route path={TAB_PATHS.emprunts} element={isGuest ? fallback : <EmpruntsList />} />
+      <Route path={TAB_PATHS.statistiques} element={<StatistiquesList />} />
+      <Route path={UNKNOWN_PATH} element={fallback} />
+    </Routes>
+  )
 }
 
 function AppContent() {
   const { session, isGuest, loading } = useAuth()
   const [isExporting, setIsExporting] = useState(false)
-  const [activeTab, setActiveTab] = useState<Tab>('livres')
+  const { pathname } = useLocation()
+  const activeTab = getTabFromPath(pathname)
 
   const handleExport = async () => {
     try {
@@ -87,76 +97,14 @@ function AppContent() {
           </button>
         </div>
       </header>
-      <nav className="dashboard-tabs" role="tablist" aria-label={t('app.tabs.label')}>
-        <button
-          type="button"
-          role="tab"
-          id="tab-livres"
-          aria-selected={activeTab === 'livres'}
-          aria-controls="tabpanel-content"
-          className={`dashboard-tab${activeTab === 'livres' ? ' dashboard-tab-active' : ''}`}
-          onClick={() => setActiveTab('livres')}
-        >
-          {t('app.tab.livres')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id="tab-auteurs"
-          aria-selected={activeTab === 'auteurs'}
-          aria-controls="tabpanel-content"
-          className={`dashboard-tab${activeTab === 'auteurs' ? ' dashboard-tab-active' : ''}`}
-          onClick={() => setActiveTab('auteurs')}
-        >
-          {t('app.tab.auteurs')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id="tab-editeurs"
-          aria-selected={activeTab === 'editeurs'}
-          aria-controls="tabpanel-content"
-          className={`dashboard-tab${activeTab === 'editeurs' ? ' dashboard-tab-active' : ''}`}
-          onClick={() => setActiveTab('editeurs')}
-        >
-          {t('app.tab.editeurs')}
-        </button>
-        {!isGuest && (
-          <button
-            type="button"
-            role="tab"
-            id="tab-emprunts"
-            aria-selected={activeTab === 'emprunts'}
-            aria-controls="tabpanel-content"
-            className={`dashboard-tab${activeTab === 'emprunts' ? ' dashboard-tab-active' : ''}`}
-            onClick={() => setActiveTab('emprunts')}
-          >
-            {t('app.tab.emprunts')}
-          </button>
-        )}
-        <button
-          type="button"
-          role="tab"
-          id="tab-statistiques"
-          aria-selected={activeTab === 'statistiques'}
-          aria-controls="tabpanel-content"
-          className={`dashboard-tab${activeTab === 'statistiques' ? ' dashboard-tab-active' : ''}`}
-          onClick={() => setActiveTab('statistiques')}
-        >
-          {t('app.tab.statistiques')}
-        </button>
-      </nav>
+      <TabNav isGuest={isGuest} activeTab={activeTab} />
       <main
         className="dashboard-main"
         role="tabpanel"
-        id="tabpanel-content"
-        aria-labelledby={TAB_IDS[activeTab]}
+        id={TAB_PANEL_ID}
+        aria-labelledby={activeTab ? `${TAB_ID_PREFIX}${activeTab}` : undefined}
       >
-        {activeTab === 'livres' && <LivresList />}
-        {activeTab === 'auteurs' && <AuteursList />}
-        {activeTab === 'editeurs' && <EditeursList />}
-        {activeTab === 'emprunts' && !isGuest && <EmpruntsList />}
-        {activeTab === 'statistiques' && <StatistiquesList />}
+        <TabRoutes isGuest={isGuest} />
       </main>
     </div>
   )

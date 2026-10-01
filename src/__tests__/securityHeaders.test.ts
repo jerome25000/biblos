@@ -34,3 +34,9 @@ describe('vercel.json security headers', () => {
     expect(headers['Strict-Transport-Security']).toContain('max-age=')
   })
 })
+
+describe('vercel.json SPA fallback', () => {
+  it('rewrites unknown paths to index.html so deep links survive a refresh', () => {
+    expect(config.rewrites).toContainEqual({ source: '/(.*)', destination: '/index.html' })
+  })
+})

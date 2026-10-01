@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  getTabFromPath,
   buildContainsPattern,
   buildQuotedContainsPattern,
   countByKey,
@@ -179,5 +180,21 @@ describe('formatBytes', () => {
   it('formats gigabytes', () => {
     expect(formatBytes(1024 ** 3)).toBe('1.00 GB')
     expect(formatBytes(2.5 * 1024 ** 3)).toBe('2.50 GB')
+  })
+})
+
+describe('getTabFromPath', () => {
+  it('resolves tab paths', () => {
+    expect(getTabFromPath('/auteurs')).toBe('auteurs')
+    expect(getTabFromPath('/statistiques')).toBe('statistiques')
+  })
+
+  it('ignores trailing slashes', () => {
+    expect(getTabFromPath('/editeurs/')).toBe('editeurs')
+  })
+
+  it('returns null for unknown paths', () => {
+    expect(getTabFromPath('/')).toBeNull()
+    expect(getTabFromPath('/foo')).toBeNull()
   })
 })
