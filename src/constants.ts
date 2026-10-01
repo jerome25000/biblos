@@ -6,6 +6,9 @@ export const STATS_TOP_AUTEURS_LIMIT = 10
 export const SUPABASE_FETCH_PAGE_SIZE = 1000
 // Breakpoint for mobile/tablet view (must be kept in sync with @media (max-width: 768px) in index.css)
 export const MOBILE_BREAKPOINT_PX = 768
+// Search-as-you-type: debounce delay and minimum query length before showing "no results"
+export const SEARCH_DEBOUNCE_MS = 300
+export const SEARCH_MIN_QUERY_LENGTH = 2
 export const GUEST_ROLE = 'guest'
 export const LIKE_WILDCARD = '%'
 export const LIKE_ESCAPE_PATTERN = /[\\%_]/g
