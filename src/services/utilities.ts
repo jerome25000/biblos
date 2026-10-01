@@ -1,5 +1,11 @@
 import { getLocale } from './i18nService'
 import {
+  DATE_TIME_ZONE,
+  STORED_DATE_SEPARATOR_PATTERN,
+  STORED_DATE_TIME_PATTERN,
+  STORED_DATE_ZONE_PATTERN,
+  STORED_DATE_SEPARATOR_REPLACEMENT,
+  UTC_DESIGNATOR,
   LIKE_ESCAPE_PATTERN,
   LIKE_WILDCARD,
   MOBILE_BREAKPOINT_PX,
@@ -7,22 +13,37 @@ import {
   POSTGREST_QUOTE_ESCAPE_PATTERN,
 } from '../constants'
 
+// Postgres `timestamp` (without time zone) columns come back with no designator
+// (e.g. "2026-09-28T00:00:00"): they hold UTC values, so parse them as UTC.
+export function parseStoredDate(value: string | null): Date | null {
+  if (!value) return null
+  let normalized = value.trim().replace(STORED_DATE_SEPARATOR_PATTERN, STORED_DATE_SEPARATOR_REPLACEMENT)
+  if (
+    STORED_DATE_TIME_PATTERN.test(normalized) &&
+    !STORED_DATE_ZONE_PATTERN.test(normalized)
+  ) {
+    normalized += UTC_DESIGNATOR
+  }
+  const date = new Date(normalized)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 export function formatDate(value: string | null): string {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleDateString(getLocale() === 'fr' ? 'fr-FR' : 'en-US')
+  const date = parseStoredDate(value)
+  if (!date) return ''
+  return date.toLocaleDateString(getLocale() === 'fr' ? 'fr-FR' : 'en-US', {
+    timeZone: DATE_TIME_ZONE,
+  })
 }
 
 const FR_DATE_PATTERN = /^(\d{2})\/(\d{2})\/(\d{4})$/
 
 export function isoToFrDate(value: string | null): string {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear()
+  const date = parseStoredDate(value)
+  if (!date) return ''
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const year = date.getUTCFullYear()
   return `${day}/${month}/${year}`
 }
 
@@ -46,7 +67,7 @@ export function isValidFrDate(value: string): boolean {
 }
 
 export function todayFrDate(): string {
-  return isoToFrDate(new Date().toISOString())
+  return dateToFrDate(new Date())
 }
 
 export function frDateToDate(value: string): Date | null {
@@ -69,6 +90,12 @@ export function dateToFrDate(date: Date | null): string {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear()
   return `${day}/${month}/${year}`
+}
+
+// Year of a stored ISO date, read in UTC so it does not depend on the timezone
+export function isoToUtcYear(value: string | null): number | null {
+  const date = parseStoredDate(value)
+  return date ? date.getUTCFullYear() : null
 }
 
 export function emptyToNull(value: string): string | null {
