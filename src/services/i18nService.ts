@@ -409,7 +409,7 @@ export function t(
   if (!params) return template
   return Object.entries(params).reduce(
     (result: string, [paramKey, value]) =>
-      result.replace(`{${paramKey}}`, String(value)),
+      result.replaceAll(`{${paramKey}}`, String(value)),
     template,
   )
 }
