@@ -6,8 +6,9 @@ import { t } from '../services/i18nService'
 import { useAuth } from '../hooks/useAuth'
 import { Pagination } from './Pagination'
 import { EditeurFormModal } from './EditeurFormModal'
-import { EditeurSearchModal } from './EditeurSearchModal'
-import { EditeurDeleteConfirmModal } from './EditeurDeleteConfirmModal'
+import { EntitySearchModal } from './EntitySearchModal'
+import { EntityDeleteConfirmModal } from './EntityDeleteConfirmModal'
+import { editeurSearchDescriptor, editeurDeleteDescriptor } from './entityDescriptors'
 import { fetchEditeurById } from '../services/referentielsService'
 import IconSearch from '../assets/icons/search.svg?react'
 import IconPlus from '../assets/icons/plus.svg?react'
@@ -216,14 +217,16 @@ export function EditeursList() {
         onSaved={loadEditeurs}
         editeur={editingEditeur}
       />
-      <EditeurSearchModal
+      <EntitySearchModal
+        descriptor={editeurSearchDescriptor}
         isOpen={searchModalOpen}
         onClose={() => setSearchModalOpen(false)}
         onApply={handleSearchApply}
       />
-      <EditeurDeleteConfirmModal
+      <EntityDeleteConfirmModal
+        descriptor={editeurDeleteDescriptor}
         isOpen={deleteModalOpen}
-        editeur={deletingEditeur}
+        entity={deletingEditeur}
         onClose={closeDeleteModal}
         onDeleted={loadEditeurs}
       />

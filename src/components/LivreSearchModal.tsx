@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal } from './Modal'
 import { t } from '../services/i18nService'
+import { SEARCH_DEBOUNCE_MS, SEARCH_MIN_QUERY_LENGTH } from '../constants'
 import {
   searchAuteurSuggestions,
   searchEditeurSuggestions,
@@ -63,7 +64,7 @@ export function LivreSearchModal({
         .then(setSuggestions)
         .catch(() => setSuggestions([]))
         .finally(() => setLoading(false))
-    }, 300)
+    }, SEARCH_DEBOUNCE_MS)
 
     return () => clearTimeout(timer)
   }, [query, criteria])
@@ -161,7 +162,7 @@ export function LivreSearchModal({
           </ul>
         )}
 
-        {query.trim().length >= 2 && suggestions.length === 0 && !loading && (
+        {query.trim().length >= SEARCH_MIN_QUERY_LENGTH && suggestions.length === 0 && !loading && (
           <p className="search-no-results">{t('livres.search.noResults')}</p>
         )}
 
