@@ -1,4 +1,4 @@
-import type { Livre, Auteur } from '../types/database'
+import type { Livre, Auteur, Genre } from '../types/database'
 import { formatDate } from '../services/utilities'
 import { getPublicImageUrl } from '../services/storageService'
 import { t } from '../services/i18nService'
@@ -10,10 +10,11 @@ import IconImageEmpty from '../assets/icons/image-empty.svg?react'
 interface BookCardProps {
   livre: Livre
   auteur: Auteur | null
+  genre?: Genre | null
   onEdit?: (livre: Livre) => void
 }
 
-export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
+export function BookCard({ livre, auteur, genre, onEdit }: BookCardProps) {
   const { isGuest } = useAuth()
   const imageUrl = getPublicImageUrl(livre.image)
   const handleEditClick = isGuest ? undefined : onEdit
@@ -78,6 +79,10 @@ export function BookCard({ livre, auteur, onEdit }: BookCardProps) {
         </div>
 
         <div className="book-card-tags">
+          {genre && (
+            <span className="book-card-tag">{genre.genre}</span>
+          )}
+
           {livre.description && (
             <Tooltip text={livre.description}>
               <span className="book-card-tag">

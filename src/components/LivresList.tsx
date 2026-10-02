@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { fetchLivres, PAGE_SIZE } from '../services/livresService'
-import type { Livre, Auteur, Editeur } from '../types/database'
+import type { Livre, Auteur, Editeur, Genre } from '../types/database'
 import type { LivresFilter } from '../services/livresService'
 import { t } from '../services/i18nService'
 import { formatDate, getDefaultViewMode } from '../services/utilities'
@@ -9,7 +9,7 @@ import { Pagination } from './Pagination'
 import { LivreFormModal } from './LivreFormModal'
 import { LivreSearchModal } from './LivreSearchModal'
 import { StarRating } from './StarRating'
-import { fetchAuteurById, fetchEditeurById, fetchAuteurs, fetchEditeurs } from '../services/referentielsService'
+import { fetchAuteurById, fetchEditeurById, fetchAuteurs, fetchEditeurs, fetchGenres } from '../services/referentielsService'
 import IconSearch from '../assets/icons/search.svg?react'
 import IconPlus from '../assets/icons/plus.svg?react'
 import IconEdit from '../assets/icons/edit.svg?react'
@@ -36,6 +36,7 @@ export function LivresList() {
   const [filterItemData, setFilterItemData] = useState<Auteur | Editeur | null>(null)
   const [auteurs, setAuteurs] = useState<Map<number, Auteur>>(new Map())
   const [editeurs, setEditeurs] = useState<Map<number, Editeur>>(new Map())
+  const [genres, setGenres] = useState<Map<number, Genre>>(new Map())
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const defaultMode = getDefaultViewMode(window.innerWidth)
     return defaultMode === 'cards' ? VIEW_MODE_CARDS : VIEW_MODE_TABLE
@@ -67,14 +68,16 @@ export function LivresList() {
   useEffect(() => loadLivres(), [loadLivres])
 
   useEffect(() => {
-    Promise.all([fetchAuteurs(), fetchEditeurs()])
-      .then(([auteursData, editorsData]) => {
+    Promise.all([fetchAuteurs(), fetchEditeurs(), fetchGenres()])
+      .then(([auteursData, editorsData, genresData]) => {
         setAuteurs(new Map(auteursData.map((a) => [a.id, a])))
         setEditeurs(new Map(editorsData.map((e) => [e.id, e])))
+        setGenres(new Map(genresData.map((g) => [g.id, g])))
       })
       .catch(() => {
         setAuteurs(new Map())
         setEditeurs(new Map())
+        setGenres(new Map())
       })
   }, [])
 
@@ -270,6 +273,7 @@ export function LivresList() {
                     key={livre.id}
                     livre={livre}
                     auteur={auteur}
+                    genre={livre.genre_id ? genres.get(livre.genre_id) ?? null : null}
                     onEdit={openEditModal}
                   />
                 )

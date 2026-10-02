@@ -58,6 +58,16 @@ describe('BookCard', () => {
     expect(screen.getByText('Victor Hugo')).toBeInTheDocument()
   })
 
+  it('renders genre tag when genre is provided', () => {
+    render(<BookCard livre={mockLivre} auteur={mockAuteur} genre={{ id: 1, genre: 'Roman' }} />)
+    expect(screen.getByText('Roman')).toBeInTheDocument()
+  })
+
+  it('does not render genre tag when genre is absent', () => {
+    render(<BookCard livre={mockLivre} auteur={mockAuteur} />)
+    expect(screen.queryByText('Roman')).not.toBeInTheDocument()
+  })
+
   it('does not render author when auteur is null', () => {
     render(<BookCard livre={mockLivre} auteur={null} />)
     expect(screen.queryByText(/Victor/)).not.toBeInTheDocument()
