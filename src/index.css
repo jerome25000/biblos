@@ -405,14 +405,30 @@ button:disabled {
   gap: 24px;
 }
 
-.stats-panel {
+.stat-card {
   flex: 1 1 320px;
   min-width: 280px;
+  border: 2px solid var(--input-border);
+  border-radius: 8px;
+  padding: 12px 16px;
 }
 
-.stats-panel h2 {
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--text-primary);
   font-size: 18px;
-  margin: 0 0 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stat-card-body {
+  margin-top: 12px;
 }
 
 .icon-btn {

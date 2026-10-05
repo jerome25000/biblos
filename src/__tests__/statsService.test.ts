@@ -1,11 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { SUPABASE_FETCH_PAGE_SIZE } from '../constants'
 import { supabase } from '../supabaseClient'
-import { computeAnneeStats, computeTopAuteurStats, fetchLivresLus } from '../services/statsService'
+import { fetchAuteurs } from '../services/referentielsService'
+import {
+  loadLivresLusParAnnee,
+  loadTopAuteursCollectionnes,
+  loadTopAuteursLus,
+  computeAnneeStats, computeTopAuteurStats, fetchLivresAuteurs, fetchLivresLus } from '../services/statsService'
 import type { LivreLu } from '../services/statsService'
 import type { Auteur } from '../types/database'
 
 vi.mock('../supabaseClient', () => ({ supabase: { from: vi.fn() } }))
+vi.mock('../services/referentielsService', () => ({ fetchAuteurs: vi.fn() }))
 
 function mockPages(results: { data: LivreLu[] | null; error: unknown }[]) {
   const range = vi.fn()
@@ -179,6 +185,51 @@ describe('statsService', () => {
         { data: null, error },
       ])
       await expect(fetchLivresLus()).rejects.toBe(error)
+    })
+  })
+
+  describe('fetchLivresAuteurs', () => {
+    it('fetches all books (no read filter)', async () => {
+      const range = vi.fn().mockResolvedValue({ data: [{ id: 1, auteur_id: 2 }], error: null })
+      const order = vi.fn(() => ({ range }))
+      const select = vi.fn(() => ({ order }))
+      vi.mocked(supabase.from).mockReturnValue({ select } as never)
+
+      await expect(fetchLivresAuteurs()).resolves.toEqual([{ id: 1, auteur_id: 2 }])
+      expect(select).toHaveBeenCalledWith('id, auteur_id')
+    })
+  })
+
+  describe('load* functions', () => {
+    const auteurs = [makeAuteur({ id: 2, nom: 'Roe', prenom: 'Jane' })]
+
+    beforeEach(() => {
+      vi.mocked(fetchAuteurs).mockResolvedValue(auteurs)
+    })
+
+    it('loadLivresLusParAnnee returns year rows', async () => {
+      mockPages([{ data: [makeLivreLu({ auteur_id: 2 })], error: null }])
+      await expect(loadLivresLusParAnnee()).resolves.toEqual([{ key: 2024, cells: [2024, 1] }])
+    })
+
+    it('loadTopAuteursLus returns author rows', async () => {
+      mockPages([{ data: [makeLivreLu({ auteur_id: 2 })], error: null }])
+      await expect(loadTopAuteursLus()).resolves.toEqual([{ key: 2, cells: ['Jane Roe', 1] }])
+    })
+
+    it('loadTopAuteursCollectionnes counts all books', async () => {
+      const range = vi.fn().mockResolvedValue({
+        data: [
+          { id: 1, auteur_id: 2 },
+          { id: 2, auteur_id: 2 },
+        ],
+        error: null,
+      })
+      const select = vi.fn(() => ({ order: vi.fn(() => ({ range })) }))
+      vi.mocked(supabase.from).mockReturnValue({ select } as never)
+      await expect(loadTopAuteursCollectionnes()).resolves.toEqual([
+        { key: 2, cells: ['Jane Roe', 2] },
+      ])
     })
   })
 })

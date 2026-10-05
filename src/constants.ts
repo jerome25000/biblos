@@ -83,3 +83,5 @@ export const TAB_PANEL_ID = 'tabpanel-content'
 // Display order of the tabs; `emprunts` is hidden from guests
 export const TAB_ORDER: readonly Tab[] = ['livres', 'auteurs', 'editeurs', 'emprunts', 'statistiques']
 export const GUEST_HIDDEN_TABS: readonly Tab[] = ['emprunts']
+export const STAT_CARD_ICON_OPEN = '▾'
+export const STAT_CARD_ICON_CLOSED = '▸'
