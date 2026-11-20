@@ -85,3 +85,6 @@ export const TAB_ORDER: readonly Tab[] = ['livres', 'auteurs', 'editeurs', 'empr
 export const GUEST_HIDDEN_TABS: readonly Tab[] = ['emprunts']
 export const STAT_CARD_ICON_OPEN = '▾'
 export const STAT_CARD_ICON_CLOSED = '▸'
+export const STAT_ROW_ICON_EXPAND = '+'
+export const STAT_ROW_ICON_COLLAPSE = '−'
+export const STATS_BOOK_AUTHOR_SEPARATOR = ' - '

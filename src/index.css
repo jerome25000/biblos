@@ -439,6 +439,23 @@ button:disabled {
   background-color: var(--card-bg-solid);
 }
 
+.stat-row-toggle {
+  background: transparent;
+  border: 0;
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stat-card tbody tr.stat-row-books {
+  background-color: var(--card-bg-solid);
+}
+
+.stat-row-books ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
 .stat-card-body {
   margin-top: 12px;
 }

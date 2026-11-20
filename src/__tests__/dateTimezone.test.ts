@@ -61,7 +61,7 @@ describe.each(TIME_ZONES)('dates in timezone %s', (tz) => {
     expect(isoToUtcYear(NEW_YEAR_ISO)).toBe(2026)
     expect(isoToUtcYear(NEW_YEAR_END_ISO)).toBe(2025)
     const stats = computeAnneeStats([
-      { id: 1, auteur_id: null, dateFinLecture: NEW_YEAR_ISO },
+      { id: 1, titre: 'T', auteur_id: null, dateFinLecture: NEW_YEAR_ISO },
     ])
     expect(stats).toEqual([{ annee: 2026, count: 1 }])
   })

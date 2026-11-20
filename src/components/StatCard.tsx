@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { StatRow } from '../services/statsService'
-import { STAT_CARD_ICON_CLOSED, STAT_CARD_ICON_OPEN } from '../constants'
+import {
+  STAT_CARD_ICON_CLOSED,
+  STAT_CARD_ICON_OPEN,
+  STAT_ROW_ICON_COLLAPSE,
+  STAT_ROW_ICON_EXPAND,
+} from '../constants'
 import { t } from '../services/i18nService'
 
 interface StatCardProps {
@@ -65,18 +70,54 @@ function renderBody(rows: StatRow[] | null, error: boolean, columns: string[]) {
             {columns.map((c) => (
               <th key={c}>{c}</th>
             ))}
+            <th aria-hidden="true" />
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.key}>
-              {row.cells.map((cell, i) => (
-                <td key={i}>{cell}</td>
-              ))}
-            </tr>
+            <StatRowView key={row.key} row={row} colSpan={columns.length + 1} />
           ))}
         </tbody>
       </table>
     </div>
+  )
+}
+
+function StatRowView({ row, colSpan }: { row: StatRow; colSpan: number }) {
+  const [expanded, setExpanded] = useState(false)
+  const label = t('stats.row.toggle', {
+    name: String(row.cells[0]),
+    action: t(expanded ? 'stats.card.collapse' : 'stats.card.expand'),
+  })
+  return (
+    <>
+      <tr>
+        {row.cells.map((cell, i) => (
+          <td key={i}>{cell}</td>
+        ))}
+        <td>
+          <button
+            type="button"
+            className="stat-row-toggle"
+            aria-expanded={expanded}
+            aria-label={label}
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? STAT_ROW_ICON_COLLAPSE : STAT_ROW_ICON_EXPAND}
+          </button>
+        </td>
+      </tr>
+      {expanded && (
+        <tr className="stat-row-books">
+          <td colSpan={colSpan}>
+            <ul>
+              {row.books.map((title, i) => (
+                <li key={i}>{title}</li>
+              ))}
+            </ul>
+          </td>
+        </tr>
+      )}
+    </>
   )
 }
