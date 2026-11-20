@@ -30,6 +30,7 @@ function makeRows(count: number, startId = 1): LivreLu[] {
 function makeLivreLu(overrides: Partial<LivreLu> = {}): LivreLu {
   return {
     id: 1,
+    titre: 'T',
     auteur_id: 1,
     dateFinLecture: '2024-05-01T00:00:00.000Z',
     ...overrides,
@@ -190,13 +191,13 @@ describe('statsService', () => {
 
   describe('fetchLivresAuteurs', () => {
     it('fetches all books (no read filter)', async () => {
-      const range = vi.fn().mockResolvedValue({ data: [{ id: 1, auteur_id: 2 }], error: null })
+      const range = vi.fn().mockResolvedValue({ data: [{ id: 1, titre: 'A', auteur_id: 2 }], error: null })
       const order = vi.fn(() => ({ range }))
       const select = vi.fn(() => ({ order }))
       vi.mocked(supabase.from).mockReturnValue({ select } as never)
 
-      await expect(fetchLivresAuteurs()).resolves.toEqual([{ id: 1, auteur_id: 2 }])
-      expect(select).toHaveBeenCalledWith('id, auteur_id')
+      await expect(fetchLivresAuteurs()).resolves.toEqual([{ id: 1, titre: 'A', auteur_id: 2 }])
+      expect(select).toHaveBeenCalledWith('id, titre, auteur_id')
     })
   })
 
@@ -209,26 +210,42 @@ describe('statsService', () => {
 
     it('loadLivresLusParAnnee returns year rows', async () => {
       mockPages([{ data: [makeLivreLu({ auteur_id: 2 })], error: null }])
-      await expect(loadLivresLusParAnnee()).resolves.toEqual([{ key: 2024, cells: [2024, 1] }])
+      await expect(loadLivresLusParAnnee()).resolves.toEqual([{ key: 2024, cells: [2024, 1], books: ['T'] }])
+    })
+
+    it('loadLivresLusParAnnee lists the year books in reading order', async () => {
+      mockPages([
+        {
+          data: [
+            makeLivreLu({ id: 1, titre: 'Late', dateFinLecture: '2024-09-01T00:00:00.000Z' }),
+            makeLivreLu({ id: 2, titre: 'Early', dateFinLecture: '2024-02-01T00:00:00.000Z' }),
+            makeLivreLu({ id: 3, titre: 'Other', dateFinLecture: '2023-02-01T00:00:00.000Z' }),
+          ],
+          error: null,
+        },
+      ])
+      const rows = await loadLivresLusParAnnee()
+      expect(rows[0].books).toEqual(['Early', 'Late'])
+      expect(rows[1].books).toEqual(['Other'])
     })
 
     it('loadTopAuteursLus returns author rows', async () => {
       mockPages([{ data: [makeLivreLu({ auteur_id: 2 })], error: null }])
-      await expect(loadTopAuteursLus()).resolves.toEqual([{ key: 2, cells: ['Jane Roe', 1] }])
+      await expect(loadTopAuteursLus()).resolves.toEqual([{ key: 2, cells: ['Jane Roe', 1], books: ['T'] }])
     })
 
     it('loadTopAuteursCollectionnes counts all books', async () => {
       const range = vi.fn().mockResolvedValue({
         data: [
-          { id: 1, auteur_id: 2 },
-          { id: 2, auteur_id: 2 },
+          { id: 1, titre: 'A', auteur_id: 2 },
+          { id: 2, titre: 'B', auteur_id: 2 },
         ],
         error: null,
       })
       const select = vi.fn(() => ({ order: vi.fn(() => ({ range })) }))
       vi.mocked(supabase.from).mockReturnValue({ select } as never)
       await expect(loadTopAuteursCollectionnes()).resolves.toEqual([
-        { key: 2, cells: ['Jane Roe', 2] },
+        { key: 2, cells: ['Jane Roe', 2], books: ['A', 'B'] },
       ])
     })
   })

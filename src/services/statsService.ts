@@ -10,11 +10,13 @@ import {
   topCountEntries,
 } from './utilities'
 
-export type LivreLu = Pick<Livre, 'id' | 'auteur_id' | 'dateFinLecture'>
+export type LivreLu = Pick<Livre, 'id' | 'titre' | 'auteur_id' | 'dateFinLecture'>
+export type LivreAuteur = Pick<Livre, 'id' | 'titre' | 'auteur_id'>
 
 export interface StatRow {
   key: string | number
   cells: (string | number)[]
+  books: string[]
 }
 
 export interface AnneeStat {
@@ -32,7 +34,7 @@ export async function fetchLivresLus(): Promise<LivreLu[]> {
   return fetchAllPages<LivreLu>(async (from, to) => {
     const { data, error } = await supabase
       .from('livres_livres')
-      .select('id, auteur_id, dateFinLecture')
+      .select('id, titre, auteur_id, dateFinLecture')
       .not('dateFinLecture', 'is', null)
       .order('id', { ascending: true })
       .range(from, to)
@@ -68,33 +70,48 @@ export function computeTopAuteurStats(
   })
 }
 
-export async function fetchLivresAuteurs(): Promise<Pick<Livre, 'id' | 'auteur_id'>[]> {
-  return fetchAllPages<Pick<Livre, 'id' | 'auteur_id'>>(async (from, to) => {
+export async function fetchLivresAuteurs(): Promise<LivreAuteur[]> {
+  return fetchAllPages<LivreAuteur>(async (from, to) => {
     const { data, error } = await supabase
       .from('livres_livres')
-      .select('id, auteur_id')
+      .select('id, titre, auteur_id')
       .order('id', { ascending: true })
       .range(from, to)
-    return { data: data as Pick<Livre, 'id' | 'auteur_id'>[] | null, error }
+    return { data: data as LivreAuteur[] | null, error }
   }, SUPABASE_FETCH_PAGE_SIZE)
 }
 
-const auteurRow = (s: AuteurStat): StatRow => ({
+const titles = (livres: Pick<Livre, 'titre'>[]): string[] => livres.map((l) => l.titre)
+
+const auteurRow = (livres: LivreAuteur[]) => (s: AuteurStat): StatRow => ({
   key: s.auteurId,
   cells: [s.nom, s.count],
+  books: titles(livres.filter((l) => l.auteur_id === s.auteurId)),
 })
 
+export function yearRow(livres: LivreLu[]) {
+  return (s: AnneeStat): StatRow => ({
+    key: s.annee,
+    cells: [s.annee, s.count],
+    books: titles(
+      livres
+        .filter((l) => isoToUtcYear(l.dateFinLecture) === s.annee)
+        .sort((a, b) => (a.dateFinLecture ?? '').localeCompare(b.dateFinLecture ?? '')),
+    ),
+  })
+}
+
 export async function loadLivresLusParAnnee(): Promise<StatRow[]> {
-  const stats = computeAnneeStats(await fetchLivresLus())
-  return stats.map((s) => ({ key: s.annee, cells: [s.annee, s.count] }))
+  const livres = await fetchLivresLus()
+  return computeAnneeStats(livres).map(yearRow(livres))
 }
 
 export async function loadTopAuteursLus(): Promise<StatRow[]> {
   const [livres, auteurs] = await Promise.all([fetchLivresLus(), fetchAuteurs()])
-  return computeTopAuteurStats(livres, auteurs).map(auteurRow)
+  return computeTopAuteurStats(livres, auteurs).map(auteurRow(livres))
 }
 
 export async function loadTopAuteursCollectionnes(): Promise<StatRow[]> {
   const [livres, auteurs] = await Promise.all([fetchLivresAuteurs(), fetchAuteurs()])
-  return computeTopAuteurStats(livres, auteurs).map(auteurRow)
+  return computeTopAuteurStats(livres, auteurs).map(auteurRow(livres))
 }
