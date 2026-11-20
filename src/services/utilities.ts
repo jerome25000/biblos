@@ -307,6 +307,6 @@ export function formatTitleWithAuthor(
   titre: string,
   auteur?: { prenom: string; nom: string },
 ): string {
-  if (!auteur) return titre
-  return `${titre}${STATS_BOOK_AUTHOR_SEPARATOR}${auteur.prenom} ${auteur.nom}`
+  const name = auteur ? [auteur.prenom, auteur.nom].filter(Boolean).join(' ') : ''
+  return name ? `${titre}${STATS_BOOK_AUTHOR_SEPARATOR}${name}` : titre
 }

@@ -250,4 +250,10 @@ describe('formatTitleWithAuthor', () => {
   it('returns only the title without author', () => {
     expect(formatTitleWithAuthor('T')).toBe('T')
   })
+  it('avoids a double space when prenom is empty', () => {
+    expect(formatTitleWithAuthor('T', { prenom: '', nom: 'Roe' })).toBe('T - Roe')
+  })
+  it('returns only the title when the author name is empty', () => {
+    expect(formatTitleWithAuthor('T', { prenom: '', nom: '' })).toBe('T')
+  })
 })
