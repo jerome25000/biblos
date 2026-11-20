@@ -427,6 +427,18 @@ button:disabled {
   cursor: pointer;
 }
 
+.stat-card tbody tr:nth-child(odd) {
+  background-color: var(--input-bg);
+}
+
+.stat-card tbody tr:nth-child(even) {
+  background-color: var(--accent-bg);
+}
+
+.stat-card tbody tr:hover {
+  background-color: var(--card-bg-solid);
+}
+
 .stat-card-body {
   margin-top: 12px;
 }
