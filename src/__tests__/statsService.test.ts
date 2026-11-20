@@ -210,14 +210,20 @@ describe('statsService', () => {
 
     it('loadLivresLusParAnnee returns year rows', async () => {
       mockPages([{ data: [makeLivreLu({ auteur_id: 2 })], error: null }])
-      await expect(loadLivresLusParAnnee()).resolves.toEqual([{ key: 2024, cells: [2024, 1], books: ['T'] }])
+      await expect(loadLivresLusParAnnee()).resolves.toEqual([{ key: 2024, cells: [2024, 1], books: ['T - Jane Roe'] }])
+    })
+
+    it('loadLivresLusParAnnee shows only the title when no author', async () => {
+      mockPages([{ data: [makeLivreLu({ auteur_id: null })], error: null }])
+      const rows = await loadLivresLusParAnnee()
+      expect(rows[0].books).toEqual(['T'])
     })
 
     it('loadLivresLusParAnnee lists the year books in reading order', async () => {
       mockPages([
         {
           data: [
-            makeLivreLu({ id: 1, titre: 'Late', dateFinLecture: '2024-09-01T00:00:00.000Z' }),
+            makeLivreLu({ id: 1, auteur_id: 2, titre: 'Late', dateFinLecture: '2024-09-01T00:00:00.000Z' }),
             makeLivreLu({ id: 2, titre: 'Early', dateFinLecture: '2024-02-01T00:00:00.000Z' }),
             makeLivreLu({ id: 3, titre: 'Other', dateFinLecture: '2023-02-01T00:00:00.000Z' }),
           ],
@@ -225,7 +231,7 @@ describe('statsService', () => {
         },
       ])
       const rows = await loadLivresLusParAnnee()
-      expect(rows[0].books).toEqual(['Early', 'Late'])
+      expect(rows[0].books).toEqual(['Early', 'Late - Jane Roe'])
       expect(rows[1].books).toEqual(['Other'])
     })
 

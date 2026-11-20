@@ -1,6 +1,7 @@
 import { getLocale } from './i18nService'
 import {
   TAB_ORDER,
+  STATS_BOOK_AUTHOR_SEPARATOR,
   TAB_PATHS,
   type Tab,
   DATE_TIME_ZONE,
@@ -300,4 +301,12 @@ export function getImageExtension(mimeType: string): string | null {
   return Object.prototype.hasOwnProperty.call(IMAGE_MIME_EXTENSIONS, mimeType)
     ? IMAGE_MIME_EXTENSIONS[mimeType]
     : null
+}
+
+export function formatTitleWithAuthor(
+  titre: string,
+  auteur?: { prenom: string; nom: string },
+): string {
+  if (!auteur) return titre
+  return `${titre}${STATS_BOOK_AUTHOR_SEPARATOR}${auteur.prenom} ${auteur.nom}`
 }

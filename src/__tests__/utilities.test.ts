@@ -6,6 +6,7 @@ import {
   countByKey,
   escapeLikePattern,
   formatBytes,
+  formatTitleWithAuthor,
   quotePostgrestValue,
   dateToFrDate,
   frDateToDate,
@@ -239,5 +240,14 @@ describe('image validation utilities', () => {
     expect(getImageExtension('image/gif')).toBe('gif')
     expect(getImageExtension('text/html')).toBeNull()
     expect(getImageExtension('constructor')).toBeNull()
+  })
+})
+
+describe('formatTitleWithAuthor', () => {
+  it('appends the author name', () => {
+    expect(formatTitleWithAuthor('T', { prenom: 'Jane', nom: 'Roe' })).toBe('T - Jane Roe')
+  })
+  it('returns only the title without author', () => {
+    expect(formatTitleWithAuthor('T')).toBe('T')
   })
 })
