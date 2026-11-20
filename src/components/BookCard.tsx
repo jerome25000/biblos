@@ -12,9 +12,10 @@ interface BookCardProps {
   auteur: Auteur | null
   genre?: Genre | null
   onEdit?: (livre: Livre) => void
+  onAuteurClick?: (auteurId: number) => void
 }
 
-export function BookCard({ livre, auteur, genre, onEdit }: BookCardProps) {
+export function BookCard({ livre, auteur, genre, onEdit, onAuteurClick }: BookCardProps) {
   const { isGuest } = useAuth()
   const imageUrl = getPublicImageUrl(livre.image)
   const handleEditClick = isGuest ? undefined : onEdit
@@ -56,7 +57,18 @@ export function BookCard({ livre, auteur, genre, onEdit }: BookCardProps) {
 
         {auteur && (
           <p className="book-card-auteur">
-            {auteur.prenom} {auteur.nom}
+            {onAuteurClick ? (
+              <button
+                type="button"
+                className="book-card-auteur-link"
+                onClick={() => onAuteurClick(auteur.id)}
+                title={t('livres.card.filterByAuteur')}
+              >
+                {auteur.prenom} {auteur.nom}
+              </button>
+            ) : (
+              <>{auteur.prenom} {auteur.nom}</>
+            )}
           </p>
         )}
 

@@ -73,6 +73,13 @@ describe('BookCard', () => {
     expect(screen.queryByText(/Victor/)).not.toBeInTheDocument()
   })
 
+  it('calls onAuteurClick with the author id when clicking the author', () => {
+    const onAuteurClick = vi.fn()
+    render(<BookCard livre={mockLivre} auteur={mockAuteur} onAuteurClick={onAuteurClick} />)
+    fireEvent.click(screen.getByRole('button', { name: /Victor/ }))
+    expect(onAuteurClick).toHaveBeenCalledWith(mockAuteur.id)
+  })
+
   it('renders reading dates when present', () => {
     render(<BookCard livre={mockLivre} auteur={mockAuteur} />)
     // Dates are formatted via formatDate utility
