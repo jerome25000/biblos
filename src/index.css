@@ -1207,3 +1207,16 @@ tbody tr:hover {
     display: none !important;
   }
 }
+
+.book-card-auteur-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.book-card-auteur-link:hover {
+  text-decoration: underline;
+}

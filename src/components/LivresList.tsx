@@ -275,6 +275,7 @@ export function LivresList() {
                     auteur={auteur}
                     genre={livre.genre_id ? genres.get(livre.genre_id) ?? null : null}
                     onEdit={openEditModal}
+                    onAuteurClick={(auteurId) => handleSearchApply({ type: 'auteur', auteurId })}
                   />
                 )
               })}
